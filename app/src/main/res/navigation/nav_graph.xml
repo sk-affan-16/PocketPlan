@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.pocketplan.DashboardFragment"
+        android:label="Dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/addTransactionFragment"
+        android:name="com.example.pocketplan.AddTransactionFragment"
+        android:label="Add Transaction"
+        tools:layout="@layout/fragment_add_transaction" />
+
+    <fragment
+        android:id="@+id/transactionHistoryFragment"
+        android:name="com.example.pocketplan.TransactionHistoryFragment"
+        android:label="Transaction History"
+        tools:layout="@layout/fragment_transaction_history" />
+
+    <fragment
+        android:id="@+id/budgetFragment"
+        android:name="com.example.pocketplan.BudgetFragment"
+        android:label="Budget"
+        tools:layout="@layout/fragment_budget" />
+
+</navigation>
