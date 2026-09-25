@@ -15,7 +15,14 @@
         android:id="@+id/addTransactionFragment"
         android:name="com.example.pocketplan.AddTransactionFragment"
         android:label="Add Transaction"
-        tools:layout="@layout/fragment_add_transaction" />
+        tools:layout="@layout/fragment_add_transaction">
+
+        <argument
+            android:name="transactionId"
+            app:argType="long"
+            android:defaultValue="-1" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/transactionHistoryFragment"
