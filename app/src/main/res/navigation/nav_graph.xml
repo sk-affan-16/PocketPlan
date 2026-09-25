@@ -34,15 +34,11 @@
         <argument
             android:name="transactionId"
             app:argType="long"
-            android:defaultValue="-1" />
+            android:defaultValue="@null" />
 
         <action
             android:id="@+id/action_addTransactionFragment_to_transactionHistoryFragment"
             app:destination="@id/transactionHistoryFragment" />
-
-        <action
-            android:id="@+id/action_addTransactionFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
 
     </fragment>
 
@@ -50,28 +46,12 @@
         android:id="@+id/transactionHistoryFragment"
         android:name="com.example.pocketplan.TransactionHistoryFragment"
         android:label="Transaction History"
-        tools:layout="@layout/fragment_transaction_history">
-
-        <action
-            android:id="@+id/action_transactionHistoryFragment_to_addTransactionFragment"
-            app:destination="@id/addTransactionFragment" />
-
-        <action
-            android:id="@+id/action_transactionHistoryFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
-
-    </fragment>
+        tools:layout="@layout/fragment_transaction_history" />
 
     <fragment
         android:id="@+id/budgetFragment"
         android:name="com.example.pocketplan.BudgetFragment"
         android:label="Budget"
-        tools:layout="@layout/fragment_budget">
-
-        <action
-            android:id="@+id/action_budgetFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
-
-    </fragment>
+        tools:layout="@layout/fragment_budget" />
 
 </navigation>
