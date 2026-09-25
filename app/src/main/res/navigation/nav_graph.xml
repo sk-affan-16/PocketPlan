@@ -9,7 +9,21 @@
         android:id="@+id/dashboardFragment"
         android:name="com.example.pocketplan.DashboardFragment"
         android:label="Dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+
+        <action
+            android:id="@+id/action_dashboardFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
+
+        <action
+            android:id="@+id/action_dashboardFragment_to_transactionHistoryFragment"
+            app:destination="@id/transactionHistoryFragment" />
+
+        <action
+            android:id="@+id/action_dashboardFragment_to_budgetFragment"
+            app:destination="@id/budgetFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/addTransactionFragment"
@@ -20,7 +34,11 @@
         <argument
             android:name="transactionId"
             app:argType="long"
-            android:defaultValue="-1" />
+            android:defaultValue="@null" />
+
+        <action
+            android:id="@+id/action_addTransactionFragment_to_transactionHistoryFragment"
+            app:destination="@id/transactionHistoryFragment" />
 
     </fragment>
 
