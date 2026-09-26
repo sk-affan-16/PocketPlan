@@ -1,91 +1,106 @@
 # Nihar Day 2 UI Foundation Review
 
-## Transaction Form Review
+## Scope
 
-Reviewed source:
+Reviewed the current UI foundation for the four main application destinations:
 
-Rabin's transaction form layout
+* Dashboard
+* Add Transaction
+* Transaction History
+* Budget
 
-Source commit:
+This review is a QA/UI observation only. No implementation files owned by other team members were modified.
 
-5306f25 feat: add transaction form layout
+## Findings
 
-Source file:
+### 1. Dashboard
 
-app/src/main/res/layout/transaction_form.xml
+File:
 
-## Current UI Elements
+`app/src/main/res/layout/fragment_dashboard.xml`
 
-- Add Transaction title
-- Transaction Type selector
-- Amount input
-- Category selector
-- Date input
-- Description input
-- Save Transaction button
+Observed:
 
-## UI Review
+* Dashboard screen loads.
+* A centered `TextView` displays `Dashboard`.
+* No visible transaction, budget, or navigation controls are present in this layout.
 
-### Positive observations
+Status: **Needs implementation/review**
 
-- Transaction title is clearly displayed.
-- Amount input uses decimal numeric input.
-- Category and transaction type controls are present.
-- Date has a clear "Select date" hint.
-- Description is clearly marked as optional.
-- Save action is clearly labeled.
-- Layout uses consistent horizontal constraints.
-- Layout uses 24dp overall padding.
+---
 
-### Items requiring runtime verification
+### 2. Add Transaction
 
-- Verify the complete form fits on supported screen sizes.
-- Verify keyboard does not hide important controls.
-- Verify amount validation feedback is understandable.
-- Verify required-field validation feedback.
-- Verify category validation behavior.
-- Verify date selection behavior.
-- Verify save-button behavior.
-- Verify text remains readable without clipping or overlap.
+File:
 
-## Validation Review
+`app/src/main/res/layout/fragment_add_transaction.xml`
 
-Validation cannot be confirmed from the XML layout alone.
+Observed:
 
-Runtime testing is required for:
+* A centered `TextView` displays `Add Transaction`.
+* No transaction input controls are present in this fragment layout.
 
-- Empty amount
-- Invalid amount
-- Zero amount
-- Missing category
-- Missing required information
+Important:
 
-## Confirmation Dialog Review
+The project also contains `transaction_form.xml`, which contains the transaction form UI. This review does not change or duplicate that implementation.
 
-No delete confirmation dialog is present in this transaction form.
+Status: **Needs integration/review**
 
-Delete confirmation should be reviewed when the delete transaction UI is available.
+---
 
-## Empty State Review
+### 3. Transaction History
 
-Empty-state behavior is not applicable to the transaction input form itself.
+File:
 
-Transaction-history empty state should be reviewed when the history screen is available.
+`app/src/main/res/layout/fragment_transaction_history.xml`
 
-## Ownership
+Observed:
 
-Transaction feature owner:
+* A centered `TextView` displays `Transaction History`.
+* No transaction list or empty-state UI is present in this fragment layout.
 
-Rabin
+Status: **Needs implementation/review**
 
-Nihar responsibility:
+---
 
-UI review, QA, bug reporting and retesting.
+### 4. Budget
 
-Nihar should not modify the transaction business logic without coordination.
+File:
 
-## Status
+`app/src/main/res/layout/fragment_budget.xml`
 
-Transaction UI foundation reviewed.
+Observed:
 
-Runtime testing pending when the transaction screen is integrated and runnable.
+* The layout currently contains an empty `FrameLayout`.
+* No visible budget UI is defined in this layout.
+
+Status: **Needs implementation/review**
+
+---
+
+## QA Summary
+
+| Screen              | Current UI observation | Status                      |
+| ------------------- | ---------------------- | --------------------------- |
+| Dashboard           | Placeholder text only  | Needs review                |
+| Add Transaction     | Placeholder text only  | Needs integration/review    |
+| Transaction History | Placeholder text only  | Needs implementation/review |
+| Budget              | Empty layout           | Needs implementation/review |
+
+## Ownership / Coordination
+
+These findings should be communicated to the responsible feature owners rather than modifying their implementation directly.
+
+* Dashboard/Budget → Prasannajit
+* Transaction-related UI → Rabin
+* Navigation/shared integration → Affan
+
+Nihar's responsibility is:
+
+**Find → Document → Communicate → Retest**
+
+## Day 2 QA Conclusion
+
+The current project builds successfully, but the four main destination layouts are not yet visually complete. Further implementation/integration is required before full UI and functional QA can be performed.
+
+No implementation files were modified by Nihar during this review.
