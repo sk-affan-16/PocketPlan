@@ -73,3 +73,24 @@ Nihar should not modify transaction business logic unless explicitly assigned.
 ## Result
 
 Day 3 transaction validation QA documentation completed.
+## Implementation Evidence
+
+The current `AddTransactionFragment` implementation was reviewed from `origin/main`.
+
+Current implementation:
+
+`AddTransactionFragment` loads `fragment_add_transaction.xml`.
+
+The fragment currently does not contain:
+
+- Transaction form integration
+- Save button handling
+- Transaction validation logic
+
+The separate `transaction_form.xml` contains the transaction form UI, but it is not currently connected by `AddTransactionFragment`.
+
+### QA Conclusion
+
+The validation test cases are documented, but runtime validation cannot currently be marked PASS because the transaction form and save flow are not yet connected to the Add Transaction fragment.
+
+This is recorded as a current implementation/integration finding for later retesting.
