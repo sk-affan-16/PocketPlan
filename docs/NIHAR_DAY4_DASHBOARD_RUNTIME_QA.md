@@ -1,4 +1,4 @@
-# Nihar Day 4 — Dashboard Runtime QA
+# Nihar Day 4 - Dashboard Runtime QA
 
 ## Objective
 
