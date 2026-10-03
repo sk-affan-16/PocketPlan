@@ -40,6 +40,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.espresso.core)
