@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.repository.PocketPlanRepository
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -50,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.main)
         ) { view, insets ->
-
             val systemBars =
                 insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
@@ -74,8 +74,7 @@ class MainActivity : AppCompatActivity() {
         etMonthlyBudget = findViewById(R.id.etMonthlyBudget)
         btnSaveBudget = findViewById(R.id.btnSaveBudget)
 
-        val database =
-            DatabaseProvider.getDatabase(applicationContext)
+        val database = DatabaseProvider.getDatabase(applicationContext)
 
         repository = PocketPlanRepository(
             transactionDao = database.transactionDao(),
@@ -107,19 +106,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Automatically refresh remaining budget when either
+        // the saved budget or the monthly expense total changes.
         lifecycleScope.launch {
-            repository.getMonthlyBudget(currentMonth).collect { budget ->
-
+            combine(
+                repository.getMonthlyBudget(currentMonth),
+                repository.getExpenseTotal(currentMonth)
+            ) { budget, expense ->
                 val budgetAmount = budget?.amount ?: 0.0
+                budgetAmount to expense
+            }.collect { (budgetAmount, expense) ->
 
                 tvMonthlyBudget.text = formatAmount(budgetAmount)
 
-                val expense = repository
-                    .getExpenseTotal(currentMonth)
-                    .first()
-
                 val remaining = budgetAmount - expense
-
                 tvRemainingBudget.text = formatAmount(remaining)
             }
         }
@@ -127,7 +127,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repository.getMonthlyTransactions(currentMonth)
                 .collect { transactions ->
-
                     tvEmptyState.visibility =
                         if (transactions.isEmpty()) {
                             TextView.VISIBLE
