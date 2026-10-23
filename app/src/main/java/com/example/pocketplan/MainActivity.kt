@@ -1,8 +1,12 @@
 
 package com.example.pocketplan
+
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -27,17 +31,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvRemainingBudget: TextView
     private lateinit var tvEmptyState: TextView
 
+    private lateinit var etMonthlyBudget: EditText
+    private lateinit var btnSaveBudget: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        findViewById<android.widget.Button>(R.id.btnAddTransaction)
+
+        findViewById<Button>(R.id.btnAddTransaction)
             .setOnClickListener {
-                startActivity(Intent(this, AddTransactionActivity::class.java))
+                startActivity(
+                    Intent(this, AddTransactionActivity::class.java)
+                )
             }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.main)
+        ) { view, insets ->
+
             val systemBars =
                 insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
@@ -58,6 +71,9 @@ class MainActivity : AppCompatActivity() {
         tvRemainingBudget = findViewById(R.id.tvRemainingBudget)
         tvEmptyState = findViewById(R.id.tvEmptyState)
 
+        etMonthlyBudget = findViewById(R.id.etMonthlyBudget)
+        btnSaveBudget = findViewById(R.id.btnSaveBudget)
+
         val database =
             DatabaseProvider.getDatabase(applicationContext)
 
@@ -66,15 +82,16 @@ class MainActivity : AppCompatActivity() {
             budgetDao = database.budgetDao()
         )
 
+        btnSaveBudget.setOnClickListener {
+            saveMonthlyBudget()
+        }
+
         loadDashboard()
     }
 
     private fun loadDashboard() {
 
-        val currentMonth = SimpleDateFormat(
-            "yyyy-MM",
-            Locale.getDefault()
-        ).format(Date())
+        val currentMonth = getCurrentMonth()
 
         lifecycleScope.launch {
             repository.getIncomeTotal(currentMonth).collect { income ->
@@ -121,12 +138,60 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveMonthlyBudget() {
+
+        val input = etMonthlyBudget.text.toString().trim()
+        val amount = input.toDoubleOrNull()
+
+        if (
+            input.isEmpty() ||
+            amount == null ||
+            !amount.isFinite() ||
+            amount <= 0.0
+        ) {
+            etMonthlyBudget.error =
+                "Enter an amount greater than zero"
+
+            etMonthlyBudget.requestFocus()
+            return
+        }
+
+        val currentMonth = getCurrentMonth()
+
+        btnSaveBudget.isEnabled = false
+
+        lifecycleScope.launch {
+            try {
+                repository.saveMonthlyBudget(
+                    month = currentMonth,
+                    amount = amount
+                )
+
+                etMonthlyBudget.text.clear()
+
+                Toast.makeText(
+                    this@MainActivity,
+                    "Monthly budget saved successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@MainActivity,
+                    "Could not save budget. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+
+            } finally {
+                btnSaveBudget.isEnabled = true
+            }
+        }
+    }
+
     private suspend fun updateBalance() {
 
-        val currentMonth = SimpleDateFormat(
-            "yyyy-MM",
-            Locale.getDefault()
-        ).format(Date())
+        val currentMonth = getCurrentMonth()
 
         val income = repository
             .getIncomeTotal(currentMonth)
@@ -139,6 +204,13 @@ class MainActivity : AppCompatActivity() {
         val balance = income - expense
 
         tvBalance.text = formatAmount(balance)
+    }
+
+    private fun getCurrentMonth(): String {
+        return SimpleDateFormat(
+            "yyyy-MM",
+            Locale.getDefault()
+        ).format(Date())
     }
 
     private fun formatAmount(amount: Double): String {
