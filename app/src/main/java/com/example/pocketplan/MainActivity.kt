@@ -1,5 +1,6 @@
-package com.example.pocketplan
 
+package com.example.pocketplan
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -31,11 +32,16 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        findViewById<android.widget.Button>(R.id.btnAddTransaction)
+            .setOnClickListener {
+                startActivity(Intent(this, AddTransactionActivity::class.java))
+            }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
+            val systemBars =
+                insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            v.setPadding(
+            view.setPadding(
                 systemBars.left,
                 systemBars.top,
                 systemBars.right,
@@ -52,7 +58,8 @@ class MainActivity : AppCompatActivity() {
         tvRemainingBudget = findViewById(R.id.tvRemainingBudget)
         tvEmptyState = findViewById(R.id.tvEmptyState)
 
-        val database = DatabaseProvider.getDatabase(applicationContext)
+        val database =
+            DatabaseProvider.getDatabase(applicationContext)
 
         repository = PocketPlanRepository(
             transactionDao = database.transactionDao(),
@@ -70,27 +77,20 @@ class MainActivity : AppCompatActivity() {
         ).format(Date())
 
         lifecycleScope.launch {
-
             repository.getIncomeTotal(currentMonth).collect { income ->
-
                 tvTotalIncome.text = formatAmount(income)
-
                 updateBalance()
             }
         }
 
         lifecycleScope.launch {
-
             repository.getExpenseTotal(currentMonth).collect { expense ->
-
                 tvTotalExpense.text = formatAmount(expense)
-
                 updateBalance()
             }
         }
 
         lifecycleScope.launch {
-
             repository.getMonthlyBudget(currentMonth).collect { budget ->
 
                 val budgetAmount = budget?.amount ?: 0.0
@@ -108,16 +108,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
+            repository.getMonthlyTransactions(currentMonth)
+                .collect { transactions ->
 
-            repository.getMonthlyTransactions(currentMonth).collect { transactions ->
-
-                tvEmptyState.visibility =
-                    if (transactions.isEmpty()) {
-                        TextView.VISIBLE
-                    } else {
-                        TextView.GONE
-                    }
-            }
+                    tvEmptyState.visibility =
+                        if (transactions.isEmpty()) {
+                            TextView.VISIBLE
+                        } else {
+                            TextView.GONE
+                        }
+                }
         }
     }
 
@@ -142,10 +142,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun formatAmount(amount: Double): String {
-
         return String.format(
-            Locale.getDefault(),
-            "₹%.2f",
+            Locale.US,
+            "\u20B9%.2f",
             amount
         )
     }

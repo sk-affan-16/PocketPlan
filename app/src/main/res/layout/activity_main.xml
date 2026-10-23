@@ -21,6 +21,13 @@
             android:textStyle="bold"
             android:layout_marginBottom="20dp" />
 
+        <Button
+            android:id="@+id/btnAddTransaction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="Add Transaction" />
+
         <TextView
             android:id="@+id/tvBalanceLabel"
             android:layout_width="wrap_content"
