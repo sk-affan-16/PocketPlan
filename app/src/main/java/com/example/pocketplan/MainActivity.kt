@@ -47,6 +47,12 @@ class MainActivity : AppCompatActivity() {
                     Intent(this, AddTransactionActivity::class.java)
                 )
             }
+        findViewById<Button>(R.id.btnTransactionHistory)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, TransactionHistoryActivity::class.java)
+                )
+            }
 
         ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.main)
