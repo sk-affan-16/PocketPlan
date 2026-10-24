@@ -25,6 +25,21 @@
         android:textSize="14sp"
         android:paddingBottom="12dp" />
 
+    <EditText
+        android:id="@+id/etHistorySearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search description or category"
+        android:inputType="text"
+        android:singleLine="true"
+        android:importantForAutofill="no" />
+
+    <Spinner
+        android:id="@+id/spinnerHistoryType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
     <TextView
         android:id="@+id/tvHistoryEmpty"
         android:layout_width="match_parent"
