@@ -9,8 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pocketplan.data.local.entity.Transaction
 import java.util.Locale
 
-class TransactionAdapter :
-    RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
+class TransactionAdapter(
+    private val onTransactionClick: (Transaction) -> Unit
+) : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
     private var transactions: List<Transaction> = emptyList()
 
@@ -55,8 +56,7 @@ class TransactionAdapter :
         )
         holder.category.text = transaction.category
         holder.date.text = transaction.date
-        holder.description.text =
-            transaction.description.orEmpty()
+        holder.description.text = transaction.description.orEmpty()
 
         holder.amount.setTextColor(
             if (transaction.type == "INCOME") {
@@ -65,6 +65,10 @@ class TransactionAdapter :
                 android.graphics.Color.rgb(220, 38, 38)
             }
         )
+
+        holder.itemView.setOnClickListener {
+            onTransactionClick(transaction)
+        }
     }
 
     override fun getItemCount(): Int = transactions.size
