@@ -28,6 +28,9 @@ class PocketPlanRepository(
         transactionDao.deleteTransaction(transaction)
     }
 
+    suspend fun getTransactionById(id: Long): Transaction? {
+        return transactionDao.getTransactionById(id)
+    }
     fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions()
     }

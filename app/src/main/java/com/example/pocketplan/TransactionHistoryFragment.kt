@@ -1,13 +1,19 @@
+
 package com.example.pocketplan
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
@@ -47,9 +53,7 @@ class TransactionHistoryFragment :
         }
     }
 
-    private fun displayTransactions(
-        transactions: List<Transaction>
-    ) {
+    private fun displayTransactions(transactions: List<Transaction>) {
         transactionListContainer.removeAllViews()
 
         if (transactions.isEmpty()) {
@@ -98,14 +102,50 @@ class TransactionHistoryFragment :
             transaction.description
                 ?.takeIf { it.isNotBlank() }
                 ?.let { description ->
-
                     val descriptionText = TextView(requireContext()).apply {
                         text = "Description: $description"
                         textSize = 14f
                     }
-
                     itemLayout.addView(descriptionText)
                 }
+
+            val buttonLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+
+            val editButton = Button(requireContext()).apply {
+                text = "Edit"
+                isAllCaps = false
+                setOnClickListener {
+                    val arguments = bundleOf(
+                        "transactionId" to transaction.id
+                    )
+                    findNavController().navigate(
+                        R.id.addTransactionFragment,
+                        arguments
+                    )
+                }
+            }
+
+            val deleteButton = Button(requireContext()).apply {
+                text = "Delete"
+                isAllCaps = false
+                setOnClickListener {
+                    showDeleteConfirmation(transaction)
+                }
+            }
+
+            buttonLayout.addView(
+                editButton,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            )
+
+            buttonLayout.addView(
+                deleteButton,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            )
+
+            itemLayout.addView(buttonLayout)
 
             transactionListContainer.addView(itemLayout)
 
@@ -121,5 +161,36 @@ class TransactionHistoryFragment :
                 )
             )
         }
+    }
+
+    private fun showDeleteConfirmation(transaction: Transaction) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Transaction")
+            .setMessage("Are you sure you want to delete this transaction?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        repository.deleteTransaction(transaction)
+
+                        if (isAdded) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Transaction deleted successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } catch (exception: Exception) {
+                        if (isAdded) {
+                            Toast.makeText(
+                                requireContext(),
+                                exception.message ?: "Unable to delete transaction",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            }
+            .show()
     }
 }

@@ -1,6 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Monthly Budget"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set your budget for this month"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etMonthlyBudget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter monthly budget"
+            android:inputType="numberDecimal"
+            android:singleLine="true"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnSaveBudget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Monthly Budget" />
+
+        <TextView
+            android:id="@+id/tvBudgetAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Monthly Budget: â‚¹0.00"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tvBudgetExpense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Expense: â‚¹0.00"
+            android:textSize="18sp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tvBudgetRemaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remaining Budget: â‚¹0.00"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/tvBudgetMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="Your monthly budget will appear here."
+            android:textSize="15sp" />
+
+    </LinearLayout>
+</ScrollView>
+

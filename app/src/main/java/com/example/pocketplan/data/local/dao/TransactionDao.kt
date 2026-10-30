@@ -1,3 +1,4 @@
+
 package com.example.pocketplan.data.local.dao
 
 import androidx.room.Dao
@@ -20,25 +21,16 @@ interface TransactionDao {
     @Delete
     suspend fun deleteTransaction(transaction: Transaction)
 
-    @Query(
-        """
-        SELECT * FROM transactions
-        ORDER BY date DESC, id DESC
-        """
-    )
+    @Query("SELECT * FROM transactions ORDER BY date DESC, id DESC")
     fun getAllTransactions(): Flow<List<Transaction>>
 
-    @Query(
-        """
-        SELECT * FROM transactions
-        WHERE date LIKE :month || '%'
-        ORDER BY date DESC, id DESC
-        """
-    )
+    @Query("SELECT * FROM transactions WHERE id = :transactionId LIMIT 1")
+    suspend fun getTransactionById(transactionId: Long): Transaction?
+
+    @Query("SELECT * FROM transactions WHERE date LIKE :month || '%' ORDER BY date DESC, id DESC")
     fun getMonthlyTransactions(month: String): Flow<List<Transaction>>
 
-    @Query(
-        """
+    @Query("""
         SELECT * FROM transactions
         WHERE (
             category LIKE '%' || :searchQuery || '%'
@@ -48,31 +40,26 @@ interface TransactionDao {
         AND (:type IS NULL OR type = :type)
         AND (:category IS NULL OR category = :category)
         ORDER BY date DESC, id DESC
-        """
-    )
+    """)
     fun searchAndFilterTransactions(
         searchQuery: String,
         type: String?,
         category: String?
     ): Flow<List<Transaction>>
 
-    @Query(
-        """
+    @Query("""
         SELECT COALESCE(SUM(amount), 0.0)
         FROM transactions
         WHERE type = 'INCOME'
         AND date LIKE :month || '%'
-        """
-    )
+    """)
     fun getIncomeTotal(month: String): Flow<Double>
 
-    @Query(
-        """
+    @Query("""
         SELECT COALESCE(SUM(amount), 0.0)
         FROM transactions
         WHERE type = 'EXPENSE'
         AND date LIKE :month || '%'
-        """
-    )
+    """)
     fun getExpenseTotal(month: String): Flow<Double>
 }
