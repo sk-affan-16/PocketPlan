@@ -8,10 +8,37 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
+        android:paddingBottom="12dp"
         android:text="Transaction History"
         android:textSize="24sp"
         android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etSearchTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search category or description"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <Spinner
+        android:id="@+id/spinnerTypeFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <Spinner
+        android:id="@+id/spinnerCategoryFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnClearFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Filters"
+        android:textAllCaps="false" />
 
     <TextView
         android:id="@+id/tvEmptyTransactions"
@@ -19,7 +46,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="24dp"
-        android:text="No transactions yet. Add your first transaction!"
+        android:text="No transactions found."
         android:textSize="16sp"
         android:visibility="gone" />
 

@@ -3,8 +3,12 @@ package com.example.pocketplan
 
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -25,6 +30,12 @@ class TransactionHistoryFragment :
 
     private lateinit var transactionListContainer: LinearLayout
     private lateinit var tvEmptyTransactions: TextView
+    private lateinit var etSearchTransactions: EditText
+    private lateinit var spinnerTypeFilter: Spinner
+    private lateinit var spinnerCategoryFilter: Spinner
+    private lateinit var btnClearFilters: Button
+
+    private var filterJob: Job? = null
 
     private val repository: PocketPlanRepository by lazy {
         val database = DatabaseProvider.getDatabase(requireContext())
@@ -44,9 +55,141 @@ class TransactionHistoryFragment :
         tvEmptyTransactions =
             view.findViewById(R.id.tvEmptyTransactions)
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        etSearchTransactions =
+            view.findViewById(R.id.etSearchTransactions)
+
+        spinnerTypeFilter =
+            view.findViewById(R.id.spinnerTypeFilter)
+
+        spinnerCategoryFilter =
+            view.findViewById(R.id.spinnerCategoryFilter)
+
+        btnClearFilters =
+            view.findViewById(R.id.btnClearFilters)
+
+        setupFilters()
+    }
+
+    private fun setupFilters() {
+
+        val typeOptions = listOf(
+            "All Types",
+            "INCOME",
+            "EXPENSE"
+        )
+
+        val categoryOptions = listOf(
+            "All Categories",
+            "Salary",
+            "Business",
+            "Investment",
+            "Gift",
+            "Food",
+            "Transport",
+            "Shopping",
+            "Bills",
+            "Education",
+            "Health",
+            "Entertainment",
+            "Other"
+        )
+
+        spinnerTypeFilter.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            typeOptions
+        ).also {
+            it.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+        }
+
+        spinnerCategoryFilter.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categoryOptions
+        ).also {
+            it.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+        }
+
+        val filterListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                loadFilteredTransactions()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                loadFilteredTransactions()
+            }
+        }
+
+        spinnerTypeFilter.onItemSelectedListener = filterListener
+        spinnerCategoryFilter.onItemSelectedListener = filterListener
+
+        etSearchTransactions.addTextChangedListener(
+            object : android.text.TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) = Unit
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    loadFilteredTransactions()
+                }
+
+                override fun afterTextChanged(s: android.text.Editable?) = Unit
+            }
+        )
+
+        btnClearFilters.setOnClickListener {
+            etSearchTransactions.text.clear()
+            spinnerTypeFilter.setSelection(0)
+            spinnerCategoryFilter.setSelection(0)
+            loadFilteredTransactions()
+        }
+
+        loadFilteredTransactions()
+    }
+
+    private fun loadFilteredTransactions() {
+
+        val searchQuery =
+            etSearchTransactions.text.toString().trim()
+
+        val selectedType =
+            when (spinnerTypeFilter.selectedItemPosition) {
+                1 -> "INCOME"
+                2 -> "EXPENSE"
+                else -> null
+            }
+
+        val selectedCategory =
+            spinnerCategoryFilter.selectedItem
+                ?.toString()
+                ?.takeUnless { it == "All Categories" }
+
+        filterJob?.cancel()
+
+        filterJob = viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                repository.getAllTransactions().collect { transactions ->
+                repository.searchAndFilterTransactions(
+                    searchQuery = searchQuery,
+                    type = selectedType,
+                    category = selectedCategory
+                ).collect { transactions ->
                     displayTransactions(transactions)
                 }
             }
@@ -137,16 +280,23 @@ class TransactionHistoryFragment :
 
             buttonLayout.addView(
                 editButton,
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             )
 
             buttonLayout.addView(
                 deleteButton,
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             )
 
             itemLayout.addView(buttonLayout)
-
             transactionListContainer.addView(itemLayout)
 
             val divider = View(requireContext()).apply {
@@ -184,7 +334,8 @@ class TransactionHistoryFragment :
                         if (isAdded) {
                             Toast.makeText(
                                 requireContext(),
-                                exception.message ?: "Unable to delete transaction",
+                                exception.message
+                                    ?: "Unable to delete transaction",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
