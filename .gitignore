@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local Android Studio device settings
+.idea/deviceManager.xml
