@@ -39,4 +39,38 @@ class TransactionViewModel(
             }
         }
     }
+
+    fun updateTransaction(
+        transaction: Transaction,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.updateTransaction(transaction)
+                onSuccess()
+            } catch (exception: Exception) {
+                onError(
+                    exception.message ?: "Unable to update transaction."
+                )
+            }
+        }
+    }
+
+    fun deleteTransaction(
+        transaction: Transaction,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.deleteTransaction(transaction)
+                onSuccess()
+            } catch (exception: Exception) {
+                onError(
+                    exception.message ?: "Unable to delete transaction."
+                )
+            }
+        }
+    }
 }

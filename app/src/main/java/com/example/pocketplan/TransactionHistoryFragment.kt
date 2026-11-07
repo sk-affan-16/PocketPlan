@@ -1,13 +1,20 @@
+
 package com.example.pocketplan
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
@@ -19,15 +26,7 @@ class TransactionHistoryFragment :
 
     private lateinit var transactionListContainer: LinearLayout
     private lateinit var tvEmptyTransactions: TextView
-
-    private val repository: PocketPlanRepository by lazy {
-        val database = DatabaseProvider.getDatabase(requireContext())
-
-        PocketPlanRepository(
-            database.transactionDao(),
-            database.budgetDao()
-        )
-    }
+    private lateinit var viewModel: TransactionViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,6 +37,26 @@ class TransactionHistoryFragment :
         tvEmptyTransactions =
             view.findViewById(R.id.tvEmptyTransactions)
 
+        val database = DatabaseProvider.getDatabase(requireContext())
+
+        val repository = PocketPlanRepository(
+            database.transactionDao(),
+            database.budgetDao()
+        )
+
+        viewModel = ViewModelProvider(
+            this,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
+                        return TransactionViewModel(repository) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class")
+                }
+            }
+        )[TransactionViewModel::class.java]
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 repository.getAllTransactions().collect { transactions ->
@@ -47,9 +66,7 @@ class TransactionHistoryFragment :
         }
     }
 
-    private fun displayTransactions(
-        transactions: List<Transaction>
-    ) {
+    private fun displayTransactions(transactions: List<Transaction>) {
         transactionListContainer.removeAllViews()
 
         if (transactions.isEmpty()) {
@@ -97,29 +114,124 @@ class TransactionHistoryFragment :
 
             transaction.description
                 ?.takeIf { it.isNotBlank() }
-                ?.let { description ->
-
-                    val descriptionText = TextView(requireContext()).apply {
-                        text = "Description: $description"
-                        textSize = 14f
-                    }
-
-                    itemLayout.addView(descriptionText)
+                ?.let {
+                    itemLayout.addView(
+                        TextView(requireContext()).apply {
+                            text = "Description: $it"
+                            textSize = 14f
+                        }
+                    )
                 }
 
-            transactionListContainer.addView(itemLayout)
-
-            val divider = View(requireContext()).apply {
-                setBackgroundColor(0xFFDDDDDD.toInt())
+            val buttonLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
             }
 
-            transactionListContainer.addView(
-                divider,
-                LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    1
-                )
+            val editButton = Button(requireContext()).apply {
+                text = "Edit"
+                setOnClickListener {
+                    showEditDialog(transaction)
+                }
+            }
+
+            val deleteButton = Button(requireContext()).apply {
+                text = "Delete"
+                setOnClickListener {
+                    showDeleteDialog(transaction)
+                }
+            }
+
+            buttonLayout.addView(
+                editButton,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             )
+
+            buttonLayout.addView(
+                deleteButton,
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            )
+
+            itemLayout.addView(buttonLayout)
+            transactionListContainer.addView(itemLayout)
         }
+    }
+
+    private fun showEditDialog(transaction: Transaction) {
+        val amountInput = EditText(requireContext()).apply {
+            setText(transaction.amount.toString())
+            hint = "Enter amount"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or
+                    android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Transaction Amount")
+            .setMessage("Update the amount for this transaction.")
+            .setView(amountInput)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Update") { _, _ ->
+                val amount = amountInput.text.toString().toDoubleOrNull()
+
+                if (amount == null || amount <= 0.0) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Enter a valid amount",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
+                val updatedTransaction = transaction.copy(amount = amount)
+
+                viewModel.updateTransaction(
+                    updatedTransaction,
+                    onSuccess = {
+                        if (!isAdded) return@updateTransaction
+                        Toast.makeText(
+                            requireContext(),
+                            "Transaction updated successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onError = { message ->
+                        if (!isAdded) return@updateTransaction
+                        Toast.makeText(
+                            requireContext(),
+                            message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            }
+            .show()
+    }
+
+    private fun showDeleteDialog(transaction: Transaction) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Transaction")
+            .setMessage("Are you sure you want to delete this transaction?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteTransaction(
+                    transaction,
+                    onSuccess = {
+                        if (!isAdded) return@deleteTransaction
+                        Toast.makeText(
+                            requireContext(),
+                            "Transaction deleted successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onError = { message ->
+                        if (!isAdded) return@deleteTransaction
+                        Toast.makeText(
+                            requireContext(),
+                            message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            }
+            .show()
     }
 }
