@@ -57,6 +57,22 @@ class TransactionViewModel(
         }
     }
 
+    fun loadTransaction(
+        transactionId: Long,
+        onResult: (Transaction?) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val transaction = repository.getTransactionById(transactionId)
+                onResult(transaction)
+            } catch (exception: Exception) {
+                onError(
+                    exception.message ?: "Unable to load transaction."
+                )
+            }
+        }
+    }
     fun deleteTransaction(
         transaction: Transaction,
         onSuccess: () -> Unit,

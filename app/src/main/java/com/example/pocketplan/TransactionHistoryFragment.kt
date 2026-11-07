@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -130,7 +131,12 @@ class TransactionHistoryFragment :
             val editButton = Button(requireContext()).apply {
                 text = "Edit"
                 setOnClickListener {
-                    showEditDialog(transaction)
+                    findNavController().navigate(
+                    R.id.addTransactionFragment,
+                    Bundle().apply {
+                        putLong("transactionId", transaction.id)
+                    }
+                )
                 }
             }
 
@@ -154,56 +160,6 @@ class TransactionHistoryFragment :
             itemLayout.addView(buttonLayout)
             transactionListContainer.addView(itemLayout)
         }
-    }
-
-    private fun showEditDialog(transaction: Transaction) {
-        val amountInput = EditText(requireContext()).apply {
-            setText(transaction.amount.toString())
-            hint = "Enter amount"
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or
-                    android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle("Edit Transaction Amount")
-            .setMessage("Update the amount for this transaction.")
-            .setView(amountInput)
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Update") { _, _ ->
-                val amount = amountInput.text.toString().toDoubleOrNull()
-
-                if (amount == null || amount <= 0.0) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Enter a valid amount",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
-                }
-
-                val updatedTransaction = transaction.copy(amount = amount)
-
-                viewModel.updateTransaction(
-                    updatedTransaction,
-                    onSuccess = {
-                        if (!isAdded) return@updateTransaction
-                        Toast.makeText(
-                            requireContext(),
-                            "Transaction updated successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    onError = { message ->
-                        if (!isAdded) return@updateTransaction
-                        Toast.makeText(
-                            requireContext(),
-                            message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                )
-            }
-            .show()
     }
 
     private fun showDeleteDialog(transaction: Transaction) {
