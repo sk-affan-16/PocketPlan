@@ -24,6 +24,10 @@ class PocketPlanRepository(
         transactionDao.updateTransaction(transaction)
     }
 
+    suspend fun getTransactionById(transactionId: Long): Transaction? {
+        return transactionDao.getTransactionById(transactionId)
+    }
+
     suspend fun deleteTransaction(transaction: Transaction) {
         transactionDao.deleteTransaction(transaction)
     }
