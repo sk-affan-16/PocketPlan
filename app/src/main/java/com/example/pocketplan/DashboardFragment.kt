@@ -17,76 +17,85 @@ import java.util.Locale
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
+    private lateinit var repository: PocketPlanRepository
+
+    private lateinit var tvBalance: TextView
+    private lateinit var tvTotalIncome: TextView
+    private lateinit var tvTotalExpense: TextView
+    private lateinit var tvMonthlyBudget: TextView
+    private lateinit var tvRemainingBudget: TextView
+    private lateinit var tvEmptyState: TextView
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val tvBalance = view.findViewById<TextView>(R.id.tvBalance)
-        val tvTotalIncome = view.findViewById<TextView>(R.id.tvTotalIncome)
-        val tvTotalExpense = view.findViewById<TextView>(R.id.tvTotalExpense)
-        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
-
-        val btnAddTransaction =
-            view.findViewById<Button>(R.id.btnAddTransaction)
-
-        val btnTransactionHistory =
-            view.findViewById<Button>(R.id.btnTransactionHistory)
-
-        val btnOpenBudget =
-            view.findViewById<Button>(R.id.btnOpenBudget)
 
         val database = DatabaseProvider.getDatabase(
             requireContext().applicationContext
         )
 
-        val repository = PocketPlanRepository(
+        repository = PocketPlanRepository(
             transactionDao = database.transactionDao(),
             budgetDao = database.budgetDao()
         )
 
-        val currentMonth = SimpleDateFormat(
-            "yyyy-MM",
-            Locale.getDefault()
-        ).format(Date())
+        tvBalance = view.findViewById(R.id.tvBalance)
+        tvTotalIncome = view.findViewById(R.id.tvTotalIncome)
+        tvTotalExpense = view.findViewById(R.id.tvTotalExpense)
+        tvMonthlyBudget = view.findViewById(R.id.tvMonthlyBudget)
+        tvRemainingBudget = view.findViewById(R.id.tvRemainingBudget)
+        tvEmptyState = view.findViewById(R.id.tvEmptyState)
 
-        btnAddTransaction.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_dashboardFragment_to_addTransactionFragment
-            )
-        }
+        view.findViewById<Button>(R.id.btnAddTransaction)
+            .setOnClickListener {
+                findNavController().navigate(
+                    R.id.action_dashboardFragment_to_addTransactionFragment
+                )
+            }
 
-        btnTransactionHistory.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_dashboardFragment_to_transactionHistoryFragment
-            )
-        }
+        view.findViewById<Button>(R.id.btnTransactionHistory)
+            .setOnClickListener {
+                findNavController().navigate(
+                    R.id.action_dashboardFragment_to_transactionHistoryFragment
+                )
+            }
 
-        btnOpenBudget.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_dashboardFragment_to_budgetFragment
-            )
-        }
+        view.findViewById<Button>(R.id.btnOpenBudget)
+            .setOnClickListener {
+                findNavController().navigate(
+                    R.id.action_dashboardFragment_to_budgetFragment
+                )
+            }
+
+        observeDashboard()
+    }
+
+    private fun observeDashboard() {
+        val currentMonth = getCurrentMonth()
 
         viewLifecycleOwner.lifecycleScope.launch {
             combine(
                 repository.getIncomeTotal(currentMonth),
-                repository.getExpenseTotal(currentMonth)
-            ) { income, expense ->
-                income to expense
-            }.collect { (income, expense) ->
+                repository.getExpenseTotal(currentMonth),
+                repository.getMonthlyBudget(currentMonth)
+            ) { income, expense, budget ->
+                Triple(income, expense, budget?.amount ?: 0.0)
+            }.collect { (income, expense, budget) ->
 
                 tvTotalIncome.text = formatAmount(income)
                 tvTotalExpense.text = formatAmount(expense)
                 tvBalance.text = formatAmount(income - expense)
+
+                tvMonthlyBudget.text =
+                    "Monthly Budget: ${formatAmount(budget)}"
+
+                tvRemainingBudget.text =
+                    "Remaining Budget: ${formatAmount(budget - expense)}"
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repository.getMonthlyTransactions(currentMonth)
                 .collect { transactions ->
-
                     tvEmptyState.visibility =
                         if (transactions.isEmpty()) {
                             View.VISIBLE
@@ -95,6 +104,13 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         }
                 }
         }
+    }
+
+    private fun getCurrentMonth(): String {
+        return SimpleDateFormat(
+            "yyyy-MM",
+            Locale.getDefault()
+        ).format(Date())
     }
 
     private fun formatAmount(amount: Double): String {

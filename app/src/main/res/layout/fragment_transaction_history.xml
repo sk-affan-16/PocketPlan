@@ -9,9 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Transaction History"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:paddingBottom="12dp" />
 
     <EditText
         android:id="@+id/etSearchTransactions"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:hint="Search transactions"
         android:inputType="text"
-        android:padding="12dp" />
+        android:singleLine="true" />
 
     <Spinner
         android:id="@+id/spinnerTypeFilter"
@@ -33,14 +33,19 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
 
-    <TextView
-        android:id="@+id/tvHistoryEmpty"
+    <Button
+        android:id="@+id/btnClearFilters"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No transactions found."
-        android:textSize="16sp"
+        android:text="Clear Filters" />
+
+    <TextView
+        android:id="@+id/tvEmptyTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="24dp"
+        android:padding="16dp"
+        android:text="No transactions found"
         android:visibility="gone" />
 
     <ScrollView
@@ -50,7 +55,7 @@
         android:fillViewport="true">
 
         <LinearLayout
-            android:id="@+id/transactionList"
+            android:id="@+id/transactionListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />

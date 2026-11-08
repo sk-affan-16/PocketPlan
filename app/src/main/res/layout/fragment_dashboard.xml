@@ -61,7 +61,23 @@
             android:text="₹0.00"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tvMonthlyBudget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Monthly Budget: ₹0.00"
+            android:textSize="18sp"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvRemainingBudget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remaining Budget: ₹0.00"
+            android:textSize="18sp"
+            android:paddingBottom="20dp" />
 
         <TextView
             android:id="@+id/tvEmptyState"
@@ -92,5 +108,4 @@
             android:text="Monthly Budget" />
 
     </LinearLayout>
-
 </ScrollView>

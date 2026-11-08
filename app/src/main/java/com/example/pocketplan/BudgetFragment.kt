@@ -18,87 +18,127 @@ import java.util.Locale
 
 class BudgetFragment : Fragment(R.layout.fragment_budget) {
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
+    private lateinit var repository: PocketPlanRepository
+
+    private lateinit var etMonthlyBudget: EditText
+    private lateinit var btnSaveBudget: Button
+    private lateinit var tvBudgetAmount: TextView
+    private lateinit var tvBudgetExpense: TextView
+    private lateinit var tvBudgetRemaining: TextView
+    private lateinit var tvBudgetMessage: TextView
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val etMonthlyBudget =
-            view.findViewById<EditText>(R.id.etMonthlyBudget)
-
-        val tvCurrentBudget =
-            view.findViewById<TextView>(R.id.tvCurrentBudget)
-
-        val tvRemainingBudget =
-            view.findViewById<TextView>(R.id.tvRemainingBudget)
-
-        val btnSaveBudget =
-            view.findViewById<Button>(R.id.btnSaveBudget)
 
         val database = DatabaseProvider.getDatabase(
             requireContext().applicationContext
         )
 
-        val repository = PocketPlanRepository(
+        repository = PocketPlanRepository(
             transactionDao = database.transactionDao(),
             budgetDao = database.budgetDao()
         )
 
-        val currentMonth = SimpleDateFormat(
-            "yyyy-MM",
-            Locale.getDefault()
-        ).format(Date())
+        etMonthlyBudget = view.findViewById(R.id.etMonthlyBudget)
+        btnSaveBudget = view.findViewById(R.id.btnSaveBudget)
+        tvBudgetAmount = view.findViewById(R.id.tvBudgetAmount)
+        tvBudgetExpense = view.findViewById(R.id.tvBudgetExpense)
+        tvBudgetRemaining = view.findViewById(R.id.tvBudgetRemaining)
+        tvBudgetMessage = view.findViewById(R.id.tvBudgetMessage)
+
+        btnSaveBudget.setOnClickListener {
+            saveBudget()
+        }
+
+        observeBudget()
+    }
+
+    private fun observeBudget() {
+        val currentMonth = getCurrentMonth()
 
         viewLifecycleOwner.lifecycleScope.launch {
             combine(
                 repository.getMonthlyBudget(currentMonth),
                 repository.getExpenseTotal(currentMonth)
-            ) { budget, expenses ->
-                budget to expenses
-            }.collect { (budget, expenses) ->
+            ) { budget, expense ->
+                (budget?.amount ?: 0.0) to expense
+            }.collect { (budget, expense) ->
 
-                val budgetAmount = budget?.amount ?: 0.0
-                val remaining = budgetAmount - expenses
+                val remaining = budget - expense
 
-                tvCurrentBudget.text =
-                    "Monthly Budget: ${formatAmount(budgetAmount)}"
+                tvBudgetAmount.text =
+                    "Monthly Budget: ${formatAmount(budget)}"
 
-                tvRemainingBudget.text =
+                tvBudgetExpense.text =
+                    "Total Expense: ${formatAmount(expense)}"
+
+                tvBudgetRemaining.text =
                     "Remaining Budget: ${formatAmount(remaining)}"
 
-                if (budget != null) {
-                    etMonthlyBudget.setText(
-                        budget.amount.toString()
-                    )
+                tvBudgetMessage.text = when {
+                    budget <= 0.0 ->
+                        "Please set your monthly budget."
+
+                    remaining < 0.0 ->
+                        "You have exceeded your monthly budget!"
+
+                    else ->
+                        "You are within your monthly budget."
                 }
             }
         }
+    }
 
-        btnSaveBudget.setOnClickListener {
+    private fun saveBudget() {
+        val input = etMonthlyBudget.text.toString().trim()
+        val amount = input.toDoubleOrNull()
 
-            val amountText = etMonthlyBudget.text.toString().trim()
-            val amount = amountText.toDoubleOrNull()
+        if (
+            input.isEmpty() ||
+            amount == null ||
+            !amount.isFinite() ||
+            amount <= 0.0
+        ) {
+            etMonthlyBudget.error =
+                "Enter an amount greater than zero"
+            etMonthlyBudget.requestFocus()
+            return
+        }
 
-            if (amount == null || !amount.isFinite() || amount <= 0) {
-                etMonthlyBudget.error =
-                    "Enter a valid budget greater than zero"
-                return@setOnClickListener
-            }
+        btnSaveBudget.isEnabled = false
 
-            viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
                 repository.saveMonthlyBudget(
-                    month = currentMonth,
+                    month = getCurrentMonth(),
                     amount = amount
                 )
+
+                etMonthlyBudget.text.clear()
 
                 Toast.makeText(
                     requireContext(),
                     "Monthly budget saved successfully",
                     Toast.LENGTH_SHORT
                 ).show()
+
+            } catch (exception: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "Could not save budget. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            } finally {
+                btnSaveBudget.isEnabled = true
             }
         }
+    }
+
+    private fun getCurrentMonth(): String {
+        return SimpleDateFormat(
+            "yyyy-MM",
+            Locale.getDefault()
+        ).format(Date())
     }
 
     private fun formatAmount(amount: Double): String {
