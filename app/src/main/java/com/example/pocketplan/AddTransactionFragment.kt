@@ -1,3 +1,4 @@
+
 package com.example.pocketplan
 
 import android.app.DatePickerDialog
@@ -18,6 +19,7 @@ import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
 import java.text.SimpleDateFormat
+import java.text.ParsePosition
 import java.util.Calendar
 import java.util.Locale
 
@@ -115,7 +117,9 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 }
             }
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            isLenient = false
+        }
 
         etDate.setText(dateFormat.format(Calendar.getInstance().time))
 
@@ -128,6 +132,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                     val selectedDate = Calendar.getInstance()
                     selectedDate.set(year, month, day)
                     etDate.setText(dateFormat.format(selectedDate.time))
+                    etDate.error = null
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -211,19 +216,31 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             val amount = amountText.toDoubleOrNull()
             val date = etDate.text.toString().trim()
 
-            if (amount == null || amount <= 0.0) {
-                etAmount.error = "Enter an amount greater than zero"
+            // Validate amount
+            if (amount == null || !amount.isFinite() || amount <= 0.0) {
+                etAmount.error = "Enter a valid amount greater than zero"
                 etAmount.requestFocus()
                 return@setOnClickListener
             }
 
-            if (date.isBlank()) {
-                etDate.error = "Please select a date"
+            // Validate date strictly using yyyy-MM-dd
+            val datePosition = ParsePosition(0)
+            val parsedDate = dateFormat.parse(date, datePosition)
+
+            val validDate = parsedDate != null &&
+                    datePosition.index == date.length &&
+                    dateFormat.format(parsedDate) == date
+
+            if (!validDate) {
+                etDate.error = "Select a valid date"
+                etDate.requestFocus()
+
                 Toast.makeText(
                     requireContext(),
-                    "Please select a date",
+                    "Please select a valid date in yyyy-MM-dd format",
                     Toast.LENGTH_SHORT
                 ).show()
+
                 return@setOnClickListener
             }
 
@@ -232,6 +249,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             val description = etDescription.text.toString().trim()
                 .ifBlank { null }
 
+            // Prevent repeated submissions
             btnSave.isEnabled = false
 
             if (isEditMode) {
