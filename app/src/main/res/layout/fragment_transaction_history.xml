@@ -1,57 +1,88 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/screen_background"
+    android:paddingStart="20dp"
+    android:paddingTop="44dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="12dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Transaction History"
-        android:textSize="22sp"
+        android:textSize="27sp"
         android:textStyle="bold"
-        android:paddingBottom="12dp" />
+        android:textColor="@color/text_primary"
+        android:paddingBottom="6dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Track where your money goes"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:paddingBottom="18dp" />
 
     <EditText
         android:id="@+id/etSearchTransactions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_pp_dashboard_card"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
         android:hint="Search transactions"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
         android:inputType="text"
         android:singleLine="true" />
 
     <Spinner
         android:id="@+id/spinnerTypeFilter"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_pp_dashboard_card"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp" />
 
     <Spinner
         android:id="@+id/spinnerCategoryFilter"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_pp_dashboard_card"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp" />
 
     <Button
         android:id="@+id/btnClearFilters"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Clear Filters" />
+        android:layout_height="46dp"
+        android:layout_marginTop="10dp"
+        android:text="Clear Filters"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/primary" />
 
     <TextView
         android:id="@+id/tvEmptyTransactions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="16dp"
+        android:padding="24dp"
         android:text="No transactions found"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp"
         android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="12dp"
         android:fillViewport="true">
 
         <LinearLayout

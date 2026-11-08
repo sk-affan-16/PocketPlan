@@ -1,5 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+﻿<resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- PocketPlan Premium Light Palette -->
+    <color name="primary">#7252B5</color>
+    <color name="primary_dark">#242044</color>
+    <color name="primary_light">#EDE7F8</color>
+
+    <color name="screen_background">#F7F6FC</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <color name="text_primary">#242044</color>
+    <color name="text_secondary">#777487</color>
+    <color name="divider">#EAE8F0</color>
+
+    <color name="income">#25A875</color>
+    <color name="income_light">#E5F6EE</color>
+
+    <color name="expense">#E66C76</color>
+    <color name="expense_light">#FCEBED</color>
+
+    <color name="budget">#E9A23B</color>
+    <color name="budget_light">#FFF4DF</color>
 </resources>
