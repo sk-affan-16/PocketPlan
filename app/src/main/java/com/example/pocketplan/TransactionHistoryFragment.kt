@@ -115,6 +115,7 @@ class TransactionHistoryFragment :
         }
 
         val filterListener = object : AdapterView.OnItemSelectedListener {
+
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -134,6 +135,7 @@ class TransactionHistoryFragment :
 
         etSearchTransactions.addTextChangedListener(
             object : android.text.TextWatcher {
+
                 override fun beforeTextChanged(
                     s: CharSequence?,
                     start: Int,
@@ -150,7 +152,9 @@ class TransactionHistoryFragment :
                     loadFilteredTransactions()
                 }
 
-                override fun afterTextChanged(s: android.text.Editable?) = Unit
+                override fun afterTextChanged(
+                    s: android.text.Editable?
+                ) = Unit
             }
         )
 
@@ -184,7 +188,9 @@ class TransactionHistoryFragment :
         filterJob?.cancel()
 
         filterJob = viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
                 repository.searchAndFilterTransactions(
                     searchQuery = searchQuery,
                     type = selectedType,
@@ -196,7 +202,9 @@ class TransactionHistoryFragment :
         }
     }
 
-    private fun displayTransactions(transactions: List<Transaction>) {
+    private fun displayTransactions(
+        transactions: List<Transaction>
+    ) {
         transactionListContainer.removeAllViews()
 
         if (transactions.isEmpty()) {
@@ -245,10 +253,12 @@ class TransactionHistoryFragment :
             transaction.description
                 ?.takeIf { it.isNotBlank() }
                 ?.let { description ->
-                    val descriptionText = TextView(requireContext()).apply {
-                        text = "Description: $description"
-                        textSize = 14f
-                    }
+                    val descriptionText =
+                        TextView(requireContext()).apply {
+                            text = "Description: $description"
+                            textSize = 14f
+                        }
+
                     itemLayout.addView(descriptionText)
                 }
 
@@ -259,10 +269,12 @@ class TransactionHistoryFragment :
             val editButton = Button(requireContext()).apply {
                 text = "Edit"
                 isAllCaps = false
+
                 setOnClickListener {
                     val arguments = bundleOf(
                         "transactionId" to transaction.id
                     )
+
                     findNavController().navigate(
                         R.id.addTransactionFragment,
                         arguments
@@ -273,6 +285,7 @@ class TransactionHistoryFragment :
             val deleteButton = Button(requireContext()).apply {
                 text = "Delete"
                 isAllCaps = false
+
                 setOnClickListener {
                     showDeleteConfirmation(transaction)
                 }
@@ -314,11 +327,15 @@ class TransactionHistoryFragment :
     }
 
     private fun showDeleteConfirmation(transaction: Transaction) {
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Transaction")
-            .setMessage("Are you sure you want to delete this transaction?")
+            .setMessage(
+                "Are you sure you want to delete this transaction?"
+            )
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
+
                 viewLifecycleOwner.lifecycleScope.launch {
                     try {
                         repository.deleteTransaction(transaction)
@@ -330,7 +347,9 @@ class TransactionHistoryFragment :
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+
                     } catch (exception: Exception) {
+
                         if (isAdded) {
                             Toast.makeText(
                                 requireContext(),
@@ -345,3 +364,4 @@ class TransactionHistoryFragment :
             .show()
     }
 }
+

@@ -8,11 +8,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
         android:paddingBottom="12dp"
+=======
+        android:paddingBottom="16dp"
+>>>>>>> origin/feature/rabin
         android:text="Transaction History"
         android:textSize="24sp"
         android:textStyle="bold" />
 
+<<<<<<< HEAD
     <EditText
         android:id="@+id/etSearchTransactions"
         android:layout_width="match_parent"
@@ -40,13 +45,19 @@
         android:text="Clear Filters"
         android:textAllCaps="false" />
 
+=======
+>>>>>>> origin/feature/rabin
     <TextView
         android:id="@+id/tvEmptyTransactions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="24dp"
+<<<<<<< HEAD
         android:text="No transactions found."
+=======
+        android:text="No transactions yet. Add your first transaction!"
+>>>>>>> origin/feature/rabin
         android:textSize="16sp"
         android:visibility="gone" />
 
@@ -63,4 +74,8 @@
 
     </ScrollView>
 
+<<<<<<< HEAD
 </LinearLayout>
+=======
+</LinearLayout>
+>>>>>>> origin/feature/rabin

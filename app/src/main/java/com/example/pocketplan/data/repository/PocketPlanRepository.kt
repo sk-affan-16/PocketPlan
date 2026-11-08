@@ -28,9 +28,12 @@ class PocketPlanRepository(
         transactionDao.deleteTransaction(transaction)
     }
 
+<<<<<<< HEAD
     suspend fun getTransactionById(id: Long): Transaction? {
         return transactionDao.getTransactionById(id)
     }
+=======
+>>>>>>> origin/feature/rabin
     fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions()
     }
