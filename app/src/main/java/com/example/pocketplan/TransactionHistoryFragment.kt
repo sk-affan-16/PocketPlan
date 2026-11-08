@@ -1,24 +1,27 @@
 
 package com.example.pocketplan
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -27,7 +30,21 @@ class TransactionHistoryFragment :
 
     private lateinit var transactionListContainer: LinearLayout
     private lateinit var tvEmptyTransactions: TextView
-    private lateinit var viewModel: TransactionViewModel
+    private lateinit var etSearchTransactions: EditText
+    private lateinit var spinnerTypeFilter: Spinner
+    private lateinit var spinnerCategoryFilter: Spinner
+    private lateinit var btnClearFilters: Button
+
+    private var filterJob: Job? = null
+
+    private val repository: PocketPlanRepository by lazy {
+        val database = DatabaseProvider.getDatabase(requireContext())
+
+        PocketPlanRepository(
+            database.transactionDao(),
+            database.budgetDao()
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,36 +55,156 @@ class TransactionHistoryFragment :
         tvEmptyTransactions =
             view.findViewById(R.id.tvEmptyTransactions)
 
-        val database = DatabaseProvider.getDatabase(requireContext())
+        etSearchTransactions =
+            view.findViewById(R.id.etSearchTransactions)
 
-        val repository = PocketPlanRepository(
-            database.transactionDao(),
-            database.budgetDao()
+        spinnerTypeFilter =
+            view.findViewById(R.id.spinnerTypeFilter)
+
+        spinnerCategoryFilter =
+            view.findViewById(R.id.spinnerCategoryFilter)
+
+        btnClearFilters =
+            view.findViewById(R.id.btnClearFilters)
+
+        setupFilters()
+    }
+
+    private fun setupFilters() {
+
+        val typeOptions = listOf(
+            "All Types",
+            "INCOME",
+            "EXPENSE"
         )
 
-        viewModel = ViewModelProvider(
-            this,
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
-                        return TransactionViewModel(repository) as T
-                    }
-                    throw IllegalArgumentException("Unknown ViewModel class")
-                }
-            }
-        )[TransactionViewModel::class.java]
+        val categoryOptions = listOf(
+            "All Categories",
+            "Salary",
+            "Business",
+            "Investment",
+            "Gift",
+            "Food",
+            "Transport",
+            "Shopping",
+            "Bills",
+            "Education",
+            "Health",
+            "Entertainment",
+            "Other"
+        )
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                repository.getAllTransactions().collect { transactions ->
+        spinnerTypeFilter.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            typeOptions
+        ).also {
+            it.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+        }
+
+        spinnerCategoryFilter.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categoryOptions
+        ).also {
+            it.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+        }
+
+        val filterListener = object : AdapterView.OnItemSelectedListener {
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                loadFilteredTransactions()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                loadFilteredTransactions()
+            }
+        }
+
+        spinnerTypeFilter.onItemSelectedListener = filterListener
+        spinnerCategoryFilter.onItemSelectedListener = filterListener
+
+        etSearchTransactions.addTextChangedListener(
+            object : android.text.TextWatcher {
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) = Unit
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    loadFilteredTransactions()
+                }
+
+                override fun afterTextChanged(
+                    s: android.text.Editable?
+                ) = Unit
+            }
+        )
+
+        btnClearFilters.setOnClickListener {
+            etSearchTransactions.text.clear()
+            spinnerTypeFilter.setSelection(0)
+            spinnerCategoryFilter.setSelection(0)
+            loadFilteredTransactions()
+        }
+
+        loadFilteredTransactions()
+    }
+
+    private fun loadFilteredTransactions() {
+
+        val searchQuery =
+            etSearchTransactions.text.toString().trim()
+
+        val selectedType =
+            when (spinnerTypeFilter.selectedItemPosition) {
+                1 -> "INCOME"
+                2 -> "EXPENSE"
+                else -> null
+            }
+
+        val selectedCategory =
+            spinnerCategoryFilter.selectedItem
+                ?.toString()
+                ?.takeUnless { it == "All Categories" }
+
+        filterJob?.cancel()
+
+        filterJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+                repository.searchAndFilterTransactions(
+                    searchQuery = searchQuery,
+                    type = selectedType,
+                    category = selectedCategory
+                ).collect { transactions ->
                     displayTransactions(transactions)
                 }
             }
         }
     }
 
-    private fun displayTransactions(transactions: List<Transaction>) {
+    private fun displayTransactions(
+        transactions: List<Transaction>
+    ) {
         transactionListContainer.removeAllViews()
 
         if (transactions.isEmpty()) {
@@ -115,13 +252,14 @@ class TransactionHistoryFragment :
 
             transaction.description
                 ?.takeIf { it.isNotBlank() }
-                ?.let {
-                    itemLayout.addView(
+                ?.let { description ->
+                    val descriptionText =
                         TextView(requireContext()).apply {
-                            text = "Description: $it"
+                            text = "Description: $description"
                             textSize = 14f
                         }
-                    )
+
+                    itemLayout.addView(descriptionText)
                 }
 
             val buttonLayout = LinearLayout(requireContext()).apply {
@@ -130,64 +268,100 @@ class TransactionHistoryFragment :
 
             val editButton = Button(requireContext()).apply {
                 text = "Edit"
+                isAllCaps = false
+
                 setOnClickListener {
+                    val arguments = bundleOf(
+                        "transactionId" to transaction.id
+                    )
+
                     findNavController().navigate(
-                    R.id.addTransactionFragment,
-                    Bundle().apply {
-                        putLong("transactionId", transaction.id)
-                    }
-                )
+                        R.id.addTransactionFragment,
+                        arguments
+                    )
                 }
             }
 
             val deleteButton = Button(requireContext()).apply {
                 text = "Delete"
+                isAllCaps = false
+
                 setOnClickListener {
-                    showDeleteDialog(transaction)
+                    showDeleteConfirmation(transaction)
                 }
             }
 
             buttonLayout.addView(
                 editButton,
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             )
 
             buttonLayout.addView(
                 deleteButton,
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             )
 
             itemLayout.addView(buttonLayout)
             transactionListContainer.addView(itemLayout)
+
+            val divider = View(requireContext()).apply {
+                setBackgroundColor(0xFFDDDDDD.toInt())
+            }
+
+            transactionListContainer.addView(
+                divider,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    1
+                )
+            )
         }
     }
 
-    private fun showDeleteDialog(transaction: Transaction) {
+    private fun showDeleteConfirmation(transaction: Transaction) {
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Transaction")
-            .setMessage("Are you sure you want to delete this transaction?")
+            .setMessage(
+                "Are you sure you want to delete this transaction?"
+            )
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteTransaction(
-                    transaction,
-                    onSuccess = {
-                        if (!isAdded) return@deleteTransaction
-                        Toast.makeText(
-                            requireContext(),
-                            "Transaction deleted successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    onError = { message ->
-                        if (!isAdded) return@deleteTransaction
-                        Toast.makeText(
-                            requireContext(),
-                            message,
-                            Toast.LENGTH_LONG
-                        ).show()
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        repository.deleteTransaction(transaction)
+
+                        if (isAdded) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Transaction deleted successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    } catch (exception: Exception) {
+
+                        if (isAdded) {
+                            Toast.makeText(
+                                requireContext(),
+                                exception.message
+                                    ?: "Unable to delete transaction",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
-                )
+                }
             }
             .show()
     }
 }
+
