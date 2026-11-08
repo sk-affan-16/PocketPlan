@@ -1,4 +1,4 @@
-package com.example.pocketplan.data.repository
+﻿package com.example.pocketplan.data.repository
 
 import com.example.pocketplan.data.local.dao.BudgetDao
 import com.example.pocketplan.data.local.dao.TransactionDao
@@ -25,6 +25,10 @@ class PocketPlanRepositoryTest {
         override suspend fun updateTransaction(transaction: Transaction) {
             val index = transactions.indexOfFirst { it.id == transaction.id }
             if (index >= 0) transactions[index] = transaction
+        }
+
+        override suspend fun getTransactionById(transactionId: Long): Transaction? {
+            return transactions.firstOrNull { it.id == transactionId }
         }
 
         override suspend fun deleteTransaction(transaction: Transaction) {
