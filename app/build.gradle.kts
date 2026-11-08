@@ -42,12 +42,19 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.material)
 
+    // Navigation Component
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // Unit Testing
     testImplementation(libs.junit)
 
+    // Instrumentation Testing
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 }
