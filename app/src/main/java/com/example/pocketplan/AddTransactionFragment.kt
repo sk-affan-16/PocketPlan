@@ -1,4 +1,4 @@
-﻿package com.example.pocketplan
+package com.example.pocketplan
 
 import android.app.DatePickerDialog
 import android.os.Bundle
@@ -8,12 +8,14 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.pocketplan.data.local.database.DatabaseProvider
+import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -27,6 +29,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         super.onViewCreated(view, savedInstanceState)
 
         val database = DatabaseProvider.getDatabase(requireContext())
+
         val repository = PocketPlanRepository(
             database.transactionDao(),
             database.budgetDao()
@@ -45,6 +48,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             }
         )[TransactionViewModel::class.java]
 
+        val title = view.findViewById<TextView>(R.id.tvTransactionTitle)
         val spinnerType = view.findViewById<Spinner>(R.id.spinnerTransactionType)
         val etAmount = view.findViewById<EditText>(R.id.etAmount)
         val spinnerCategory = view.findViewById<Spinner>(R.id.spinnerCategory)
@@ -52,20 +56,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         val etDescription = view.findViewById<EditText>(R.id.etDescription)
         val btnSave = view.findViewById<Button>(R.id.btnSaveTransaction)
 
-        val transactionId = arguments
-            ?.takeIf { it.containsKey("transactionId") }
-            ?.getLong("transactionId", -1L) ?: -1L
-
-        val isEditing = transactionId > 0L
-
         val transactionTypes = listOf("INCOME", "EXPENSE")
-        val incomeCategories = listOf(
-            "Salary", "Business", "Investment", "Gift", "Other"
-        )
-        val expenseCategories = listOf(
-            "Food", "Transport", "Shopping", "Bills",
-            "Education", "Health", "Entertainment", "Other"
-        )
 
         spinnerType.adapter = ArrayAdapter(
             requireContext(),
@@ -73,8 +64,20 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             transactionTypes
         )
 
+        val incomeCategories = listOf(
+            "Salary", "Business", "Investment", "Gift", "Other"
+        )
+
+        val expenseCategories = listOf(
+            "Food", "Transport", "Shopping", "Bills",
+            "Education", "Health", "Entertainment", "Other"
+        )
+
+        var isLoadingTransaction = false
+        var loadedTransaction: Transaction? = null
+
         fun updateCategories(selectedCategory: String? = null) {
-            val categories = if (spinnerType.selectedItem?.toString() == "INCOME") {
+            val categories = if (spinnerType.selectedItem.toString() == "INCOME") {
                 incomeCategories
             } else {
                 expenseCategories
@@ -86,64 +89,35 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 categories
             )
 
-            val selectedIndex = categories.indexOf(selectedCategory)
-            if (selectedIndex >= 0) {
-                spinnerCategory.setSelection(selectedIndex)
+            if (selectedCategory != null) {
+                val position = categories.indexOf(selectedCategory)
+                if (position >= 0) {
+                    spinnerCategory.setSelection(position)
+                }
             }
         }
 
         spinnerType.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
+
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
-                    selectedView: View?,
+                    view: View?,
                     position: Int,
                     id: Long
                 ) {
-                    val currentCategory =
-                        spinnerCategory.selectedItem?.toString()
-                    updateCategories(currentCategory)
+                    if (!isLoadingTransaction) {
+                        updateCategories()
+                    }
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
             }
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-        if (!isEditing) {
-            etDate.setText(dateFormat.format(Calendar.getInstance().time))
-            updateCategories()
-        } else {
-            btnSave.text = "Update Transaction"
-            btnSave.isEnabled = false
-
-            viewModel.getTransactionById(
-                transactionId = transactionId,
-                onResult = { transaction ->
-                    if (isAdded) {
-                        spinnerType.setSelection(
-                            transactionTypes.indexOf(transaction.type)
-                                .takeIf { it >= 0 } ?: 0
-                        )
-                        updateCategories(transaction.category)
-                        etAmount.setText(transaction.amount.toString())
-                        etDate.setText(transaction.date)
-                        etDescription.setText(transaction.description.orEmpty())
-                        btnSave.isEnabled = true
-                    }
-                },
-                onError = { message ->
-                    if (isAdded) {
-                        btnSave.isEnabled = false
-                        Toast.makeText(
-                            requireContext(),
-                            message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            )
-        }
+        etDate.setText(dateFormat.format(Calendar.getInstance().time))
 
         etDate.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -151,8 +125,9 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
-                    calendar.set(year, month, day)
-                    etDate.setText(dateFormat.format(calendar.time))
+                    val selectedDate = Calendar.getInstance()
+                    selectedDate.set(year, month, day)
+                    etDate.setText(dateFormat.format(selectedDate.time))
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -160,8 +135,80 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             ).show()
         }
 
+        val transactionId = arguments?.getLong("transactionId", -1L) ?: -1L
+        val isEditMode = transactionId > 0L
+
+        if (isEditMode) {
+            title.text = "Edit Transaction"
+            btnSave.text = "UPDATE TRANSACTION"
+            btnSave.isEnabled = false
+
+            isLoadingTransaction = true
+
+            viewModel.loadTransaction(
+                transactionId = transactionId,
+                onResult = { transaction ->
+                    if (!isAdded) return@loadTransaction
+
+                    if (transaction == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Transaction not found.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        findNavController().popBackStack()
+                        return@loadTransaction
+                    }
+
+                    loadedTransaction = transaction
+
+                    val typePosition = transactionTypes.indexOf(transaction.type)
+                    if (typePosition >= 0) {
+                        spinnerType.setSelection(typePosition)
+                    }
+
+                    updateCategories(transaction.category)
+
+                    etAmount.setText(transaction.amount.toString())
+                    etDate.setText(transaction.date)
+                    etDescription.setText(transaction.description ?: "")
+
+                    spinnerCategory.post {
+                        val categories = if (transaction.type == "INCOME") {
+                            incomeCategories
+                        } else {
+                            expenseCategories
+                        }
+
+                        val categoryPosition = categories.indexOf(transaction.category)
+                        if (categoryPosition >= 0) {
+                            spinnerCategory.setSelection(categoryPosition)
+                        }
+
+                        isLoadingTransaction = false
+                        btnSave.isEnabled = true
+                    }
+                },
+                onError = { message ->
+                    if (!isAdded) return@loadTransaction
+
+                    isLoadingTransaction = false
+                    btnSave.isEnabled = true
+
+                    Toast.makeText(
+                        requireContext(),
+                        message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        } else {
+            updateCategories()
+        }
+
         btnSave.setOnClickListener {
-            val amount = etAmount.text.toString().trim().toDoubleOrNull()
+            val amountText = etAmount.text.toString().trim()
+            val amount = amountText.toDoubleOrNull()
             val date = etDate.text.toString().trim()
 
             if (amount == null || amount <= 0.0) {
@@ -172,67 +219,99 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
             if (date.isBlank()) {
                 etDate.error = "Please select a date"
+                Toast.makeText(
+                    requireContext(),
+                    "Please select a date",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
             val type = spinnerType.selectedItem.toString()
-            val category = spinnerCategory.selectedItem?.toString().orEmpty()
-            val description = etDescription.text.toString()
-                .trim()
+            val category = spinnerCategory.selectedItem.toString()
+            val description = etDescription.text.toString().trim()
                 .ifBlank { null }
 
             btnSave.isEnabled = false
 
-            val onSuccess: () -> Unit = {
-                if (isAdded) {
-                    Toast.makeText(
-                        requireContext(),
-                        if (isEditing) "Transaction updated successfully!"
-                        else "Transaction saved successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+            if (isEditMode) {
+                val originalTransaction = loadedTransaction
 
-                    if (isEditing) {
-                        findNavController().popBackStack()
-                    } else {
-                        btnSave.isEnabled = true
-                        etAmount.text.clear()
-                        etDescription.text.clear()
-                    }
-                }
-            }
-
-            val onError: (String) -> Unit = { message ->
-                if (isAdded) {
+                if (originalTransaction == null) {
                     btnSave.isEnabled = true
                     Toast.makeText(
                         requireContext(),
-                        message,
-                        Toast.LENGTH_LONG
+                        "Transaction is not loaded yet.",
+                        Toast.LENGTH_SHORT
                     ).show()
+                    return@setOnClickListener
                 }
-            }
 
-            if (isEditing) {
+                val updatedTransaction = originalTransaction.copy(
+                    type = type,
+                    amount = amount,
+                    category = category,
+                    date = date,
+                    description = description
+                )
+
                 viewModel.updateTransaction(
-                    transactionId,
-                    type,
-                    amount,
-                    category,
-                    date,
-                    description,
-                    onSuccess,
-                    onError
+                    transaction = updatedTransaction,
+                    onSuccess = {
+                        if (!isAdded) return@updateTransaction
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Transaction updated successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        findNavController().popBackStack()
+                    },
+                    onError = { message ->
+                        if (!isAdded) return@updateTransaction
+
+                        btnSave.isEnabled = true
+
+                        Toast.makeText(
+                            requireContext(),
+                            message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 )
             } else {
                 viewModel.addTransaction(
-                    type,
-                    amount,
-                    category,
-                    date,
-                    description,
-                    onSuccess,
-                    onError
+                    type = type,
+                    amount = amount,
+                    category = category,
+                    date = date,
+                    description = description,
+                    onSuccess = {
+                        if (!isAdded) return@addTransaction
+
+                        btnSave.isEnabled = true
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Transaction saved successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        etAmount.text.clear()
+                        etDescription.text.clear()
+                    },
+                    onError = { message ->
+                        if (!isAdded) return@addTransaction
+
+                        btnSave.isEnabled = true
+
+                        Toast.makeText(
+                            requireContext(),
+                            message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 )
             }
         }
