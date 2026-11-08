@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
             android:id="@+id/tvBudgetAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Monthly Budget: â‚¹0.00"
+            android:text="Monthly Budget: ₹0.00"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="28dp"
@@ -54,7 +54,7 @@
             android:id="@+id/tvBudgetExpense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total Expense: â‚¹0.00"
+            android:text="Total Expense: ₹0.00"
             android:textSize="18sp"
             android:layout_marginBottom="16dp" />
 
@@ -62,7 +62,7 @@
             android:id="@+id/tvBudgetRemaining"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remaining Budget: â‚¹0.00"
+            android:text="Remaining Budget: ₹0.00"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp" />
@@ -78,4 +78,3 @@
 
     </LinearLayout>
 </ScrollView>
-

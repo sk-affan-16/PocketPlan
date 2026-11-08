@@ -1,5 +1,4 @@
-
-package com.example.pocketplan
+﻿package com.example.pocketplan
 
 import android.os.Bundle
 import android.view.View
@@ -79,9 +78,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                 repository.getExpenseTotal(currentMonth),
                 repository.getMonthlyBudget(currentMonth)
             ) { income, expense, budget ->
-
                 Triple(income, expense, budget?.amount ?: 0.0)
-
             }.collect { (income, expense, budget) ->
 
                 tvTotalIncome.text = formatAmount(income)
@@ -99,7 +96,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             repository.getMonthlyTransactions(currentMonth)
                 .collect { transactions ->
-
                     tvEmptyState.visibility =
                         if (transactions.isEmpty()) {
                             View.VISIBLE
