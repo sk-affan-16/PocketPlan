@@ -8,128 +8,104 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PocketPlan"
-            android:textSize="28sp"
+            android:text="PocketPlan Dashboard"
+            android:textSize="26sp"
             android:textStyle="bold"
-            android:layout_marginBottom="20dp" />
+            android:paddingBottom="20dp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Current Balance"
             android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvBalance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="â‚¹0.00"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="20dp" />
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:text="₹0.00"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:paddingBottom="24dp" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="8dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Income"
+            android:textSize="16sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Income"
-                    android:textSize="15sp" />
+        <TextView
+            android:id="@+id/tvTotalIncome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="₹0.00"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
 
-                <TextView
-                    android:id="@+id/tvTotalIncome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="â‚¹0.00"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Expenses"
+            android:textSize="16sp" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Expense"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/tvTotalExpense"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="â‚¹0.00"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tvTotalExpense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="₹0.00"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
 
         <TextView
             android:id="@+id/tvMonthlyBudget"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Monthly Budget: â‚¹0.00"
+            android:text="Monthly Budget: ₹0.00"
             android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
+            android:paddingBottom="8dp" />
 
         <TextView
             android:id="@+id/tvRemainingBudget"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remaining Budget: â‚¹0.00"
+            android:text="Remaining Budget: ₹0.00"
             android:textSize="18sp"
-            android:layout_marginBottom="20dp" />
+            android:paddingBottom="20dp" />
 
         <TextView
             android:id="@+id/tvEmptyState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="No transactions this month. Add your first transaction!"
+            android:textSize="15sp"
             android:gravity="center"
             android:padding="16dp"
-            android:text="No transactions yet. Add your first transaction!"
-            android:textSize="15sp" />
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/btnAddTransaction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Transaction"
-            android:layout_marginTop="12dp" />
+            android:text="Add Transaction" />
 
         <Button
             android:id="@+id/btnTransactionHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Transaction History"
-            android:layout_marginTop="8dp" />
+            android:text="Transaction History" />
 
         <Button
             android:id="@+id/btnOpenBudget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage Monthly Budget"
-            android:layout_marginTop="8dp" />
+            android:text="Monthly Budget" />
 
     </LinearLayout>
 </ScrollView>
-

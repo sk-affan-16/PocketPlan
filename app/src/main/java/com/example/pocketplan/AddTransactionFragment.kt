@@ -1,4 +1,4 @@
-package com.example.pocketplan
+﻿package com.example.pocketplan
 
 import android.app.DatePickerDialog
 import android.os.Bundle
@@ -25,10 +25,16 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
     private lateinit var viewModel: TransactionViewModel
 
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val database = DatabaseProvider.getDatabase(requireContext())
+        dateFormat.isLenient = false
+
+        val database = DatabaseProvider.getDatabase(
+            requireContext().applicationContext
+        )
 
         val repository = PocketPlanRepository(
             database.transactionDao(),
@@ -60,9 +66,13 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
         spinnerType.adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            android.R.layout.simple_spinner_item,
             transactionTypes
-        )
+        ).also {
+            it.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+            )
+        }
 
         val incomeCategories = listOf(
             "Salary", "Business", "Investment", "Gift", "Other"
@@ -77,7 +87,9 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         var loadedTransaction: Transaction? = null
 
         fun updateCategories(selectedCategory: String? = null) {
-            val categories = if (spinnerType.selectedItem.toString() == "INCOME") {
+            val selectedType = spinnerType.selectedItem?.toString() ?: "INCOME"
+
+            val categories = if (selectedType == "INCOME") {
                 incomeCategories
             } else {
                 expenseCategories
@@ -85,9 +97,13 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
             spinnerCategory.adapter = ArrayAdapter(
                 requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
+                android.R.layout.simple_spinner_item,
                 categories
-            )
+            ).also {
+                it.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+                )
+            }
 
             if (selectedCategory != null) {
                 val position = categories.indexOf(selectedCategory)
@@ -115,24 +131,35 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 }
             }
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
-        etDate.setText(dateFormat.format(Calendar.getInstance().time))
-
-        etDate.setOnClickListener {
+        fun showDatePicker() {
             val calendar = Calendar.getInstance()
+
+            try {
+                val currentDate = etDate.text.toString().trim()
+                val parsedDate = dateFormat.parse(currentDate)
+
+                if (parsedDate != null) {
+                    calendar.time = parsedDate
+                }
+            } catch (_: Exception) {
+                // Keep today's date if the current date is invalid.
+            }
 
             DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
-                    val selectedDate = Calendar.getInstance()
-                    selectedDate.set(year, month, day)
-                    etDate.setText(dateFormat.format(selectedDate.time))
+                    calendar.set(year, month, day)
+                    etDate.setText(dateFormat.format(calendar.time))
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
+        }
+
+        etDate.setText(dateFormat.format(Calendar.getInstance().time))
+        etDate.setOnClickListener {
+            showDatePicker()
         }
 
         val transactionId = arguments?.getLong("transactionId", -1L) ?: -1L
@@ -156,6 +183,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                             "Transaction not found.",
                             Toast.LENGTH_LONG
                         ).show()
+
                         findNavController().popBackStack()
                         return@loadTransaction
                     }
@@ -171,19 +199,10 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
                     etAmount.setText(transaction.amount.toString())
                     etDate.setText(transaction.date)
-                    etDescription.setText(transaction.description ?: "")
+                    etDescription.setText(transaction.description.orEmpty())
 
                     spinnerCategory.post {
-                        val categories = if (transaction.type == "INCOME") {
-                            incomeCategories
-                        } else {
-                            expenseCategories
-                        }
-
-                        val categoryPosition = categories.indexOf(transaction.category)
-                        if (categoryPosition >= 0) {
-                            spinnerCategory.setSelection(categoryPosition)
-                        }
+                        if (!isAdded) return@post
 
                         isLoadingTransaction = false
                         btnSave.isEnabled = true
@@ -211,25 +230,31 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             val amount = amountText.toDoubleOrNull()
             val date = etDate.text.toString().trim()
 
-            if (amount == null || amount <= 0.0) {
-                etAmount.error = "Enter an amount greater than zero"
+            if (amount == null || !amount.isFinite() || amount <= 0.0) {
+                etAmount.error = "Enter a valid amount greater than zero"
                 etAmount.requestFocus()
                 return@setOnClickListener
             }
 
-            if (date.isBlank()) {
-                etDate.error = "Please select a date"
-                Toast.makeText(
-                    requireContext(),
-                    "Please select a date",
-                    Toast.LENGTH_SHORT
-                ).show()
+            val parsedDate = try {
+                dateFormat.parse(date)
+            } catch (_: Exception) {
+                null
+            }
+
+            if (
+                parsedDate == null ||
+                dateFormat.format(parsedDate) != date
+            ) {
+                etDate.error = "Select a valid date"
+                etDate.requestFocus()
                 return@setOnClickListener
             }
 
             val type = spinnerType.selectedItem.toString()
             val category = spinnerCategory.selectedItem.toString()
-            val description = etDescription.text.toString().trim()
+            val description = etDescription.text.toString()
+                .trim()
                 .ifBlank { null }
 
             btnSave.isEnabled = false
@@ -239,11 +264,13 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
                 if (originalTransaction == null) {
                     btnSave.isEnabled = true
+
                     Toast.makeText(
                         requireContext(),
                         "Transaction is not loaded yet.",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     return@setOnClickListener
                 }
 

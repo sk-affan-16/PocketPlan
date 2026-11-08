@@ -1,4 +1,4 @@
-*.iml
+﻿*.iml
 .gradle
 /local.properties
 /.idea/caches
@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/markdown.xml
 
 # Local Android Studio device settings
 .idea/deviceManager.xml

@@ -12,8 +12,6 @@ class PocketPlanRepository(
     private val budgetDao: BudgetDao
 ) {
 
-    // Transaction operations
-
     suspend fun addTransaction(transaction: Transaction): Long {
         return transactionDao.insertTransaction(transaction)
     }
@@ -57,8 +55,6 @@ class PocketPlanRepository(
     fun getExpenseTotal(month: String): Flow<Double> {
         return transactionDao.getExpenseTotal(month)
     }
-
-    // Budget operations
 
     fun getMonthlyBudget(month: String): Flow<Budget?> {
         return budgetDao.getBudgetForMonth(month)
