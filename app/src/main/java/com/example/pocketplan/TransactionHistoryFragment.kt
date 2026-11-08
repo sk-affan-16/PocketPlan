@@ -12,7 +12,6 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +20,13 @@ import androidx.navigation.fragment.findNavController
 import com.example.pocketplan.data.local.database.DatabaseProvider
 import com.example.pocketplan.data.local.entity.Transaction
 import com.example.pocketplan.data.repository.PocketPlanRepository
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -35,7 +40,8 @@ class TransactionHistoryFragment :
     private lateinit var spinnerCategoryFilter: Spinner
     private lateinit var btnClearFilters: Button
 
-    private var filterJob: Job? = null
+    private val filterState =
+        MutableStateFlow(Triple("", null as String?, null as String?))
 
     private val repository: PocketPlanRepository by lazy {
         val database = DatabaseProvider.getDatabase(requireContext())
@@ -70,6 +76,7 @@ class TransactionHistoryFragment :
         setupFilters()
     }
 
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     private fun setupFilters() {
 
         val typeOptions = listOf(
@@ -122,11 +129,11 @@ class TransactionHistoryFragment :
                 position: Int,
                 id: Long
             ) {
-                loadFilteredTransactions()
+                updateFilterState()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                loadFilteredTransactions()
+                updateFilterState()
             }
         }
 
@@ -149,7 +156,7 @@ class TransactionHistoryFragment :
                     before: Int,
                     count: Int
                 ) {
-                    loadFilteredTransactions()
+                    updateFilterState()
                 }
 
                 override fun afterTextChanged(
@@ -162,13 +169,33 @@ class TransactionHistoryFragment :
             etSearchTransactions.text.clear()
             spinnerTypeFilter.setSelection(0)
             spinnerCategoryFilter.setSelection(0)
-            loadFilteredTransactions()
+            updateFilterState()
         }
 
-        loadFilteredTransactions()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+                filterState
+                    .debounce(300)
+                    .distinctUntilChanged()
+                    .flatMapLatest { filters ->
+                        repository.searchAndFilterTransactions(
+                            searchQuery = filters.first,
+                            type = filters.second,
+                            category = filters.third
+                        )
+                    }
+                    .collectLatest { transactions ->
+                        displayTransactions(transactions)
+                    }
+            }
+        }
+
+        updateFilterState()
     }
 
-    private fun loadFilteredTransactions() {
+    private fun updateFilterState() {
 
         val searchQuery =
             etSearchTransactions.text.toString().trim()
@@ -185,21 +212,11 @@ class TransactionHistoryFragment :
                 ?.toString()
                 ?.takeUnless { it == "All Categories" }
 
-        filterJob?.cancel()
-
-        filterJob = viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(
-                Lifecycle.State.STARTED
-            ) {
-                repository.searchAndFilterTransactions(
-                    searchQuery = searchQuery,
-                    type = selectedType,
-                    category = selectedCategory
-                ).collect { transactions ->
-                    displayTransactions(transactions)
-                }
-            }
-        }
+        filterState.value = Triple(
+            searchQuery,
+            selectedType,
+            selectedCategory
+        )
     }
 
     private fun displayTransactions(
@@ -271,9 +288,9 @@ class TransactionHistoryFragment :
                 isAllCaps = false
 
                 setOnClickListener {
-                    val arguments = bundleOf(
-                        "transactionId" to transaction.id
-                    )
+                    val arguments = Bundle().apply {
+                        putLong("transactionId", transaction.id)
+                    }
 
                     findNavController().navigate(
                         R.id.addTransactionFragment,
