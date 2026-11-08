@@ -1,4 +1,4 @@
-package com.example.pocketplan.data.repository
+﻿package com.example.pocketplan.data.repository
 
 import com.example.pocketplan.data.local.dao.BudgetDao
 import com.example.pocketplan.data.local.dao.TransactionDao
@@ -12,9 +12,7 @@ class PocketPlanRepository(
     private val budgetDao: BudgetDao
 ) {
 
-    // -------------------------
     // Transaction operations
-    // -------------------------
 
     suspend fun addTransaction(transaction: Transaction): Long {
         return transactionDao.insertTransaction(transaction)
@@ -28,12 +26,10 @@ class PocketPlanRepository(
         transactionDao.deleteTransaction(transaction)
     }
 
-<<<<<<< HEAD
     suspend fun getTransactionById(id: Long): Transaction? {
         return transactionDao.getTransactionById(id)
     }
-=======
->>>>>>> origin/feature/rabin
+
     fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions()
     }
@@ -62,9 +58,7 @@ class PocketPlanRepository(
         return transactionDao.getExpenseTotal(month)
     }
 
-    // -------------------------
     // Budget operations
-    // -------------------------
 
     fun getMonthlyBudget(month: String): Flow<Budget?> {
         return budgetDao.getBudgetForMonth(month)
@@ -77,9 +71,7 @@ class PocketPlanRepository(
         val existingBudget = budgetDao.getBudgetForMonth(month).first()
 
         val budget = if (existingBudget != null) {
-            existingBudget.copy(
-                amount = amount
-            )
+            existingBudget.copy(amount = amount)
         } else {
             Budget(
                 month = month,
