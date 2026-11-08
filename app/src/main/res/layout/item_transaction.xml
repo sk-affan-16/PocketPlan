@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:layout_marginBottom="10dp"
-    android:background="#FFFFFF">
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_pp_dashboard_card">
 
     <TextView
         android:id="@+id/tvTransactionType"
@@ -13,8 +12,8 @@
         android:layout_height="wrap_content"
         android:text="EXPENSE"
         android:textStyle="bold"
-        android:textSize="14sp"
-        android:textColor="#667085" />
+        android:textSize="12sp"
+        android:textColor="@color/primary" />
 
     <TextView
         android:id="@+id/tvTransactionAmount"
@@ -22,9 +21,9 @@
         android:layout_height="wrap_content"
         android:text="₹200.00"
         android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="#172033"
-        android:paddingTop="4dp" />
+        android:textSize="22sp"
+        android:textColor="@color/text_primary"
+        android:paddingTop="5dp" />
 
     <TextView
         android:id="@+id/tvTransactionCategory"
@@ -32,8 +31,9 @@
         android:layout_height="wrap_content"
         android:text="Food"
         android:textSize="15sp"
-        android:textColor="#344054"
-        android:paddingTop="4dp" />
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:paddingTop="7dp" />
 
     <TextView
         android:id="@+id/tvTransactionDate"
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:text="2026-10-24"
         android:textSize="13sp"
-        android:textColor="#667085"
+        android:textColor="@color/text_secondary"
         android:paddingTop="4dp" />
 
     <TextView
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textSize="14sp"
-        android:textColor="#475467"
-        android:paddingTop="4dp" />
+        android:textColor="@color/text_secondary"
+        android:paddingTop="5dp" />
 
 </LinearLayout>

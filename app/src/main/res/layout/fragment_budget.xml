@@ -1,80 +1,140 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/screen_background"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="20dp"
+        android:paddingTop="44dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="28dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Monthly Budget"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="6dp" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Set your budget for this month"
-            android:textSize="16sp"
+            android:text="Plan your spending and stay on track"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="22dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp"
+            android:background="@drawable/bg_pp_dashboard_card">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SET YOUR MONTHLY LIMIT"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="10dp" />
+
+            <EditText
+                android:id="@+id/etMonthlyBudget"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="₹  Enter monthly budget"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:padding="12dp"
+                android:backgroundTint="@color/primary"
+                android:layout_marginBottom="14dp" />
+
+            <Button
+                android:id="@+id/btnSaveBudget"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Save Monthly Budget"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="YOUR BUDGET OVERVIEW"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="26dp"
             android:layout_marginBottom="12dp" />
 
-        <EditText
-            android:id="@+id/etMonthlyBudget"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter monthly budget"
-            android:inputType="numberDecimal"
-            android:singleLine="true"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/bg_pp_dashboard_hero">
 
-        <Button
-            android:id="@+id/btnSaveBudget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Monthly Budget" />
+            <TextView
+                android:id="@+id/tvBudgetAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Monthly Budget: ₹0.00"
+                android:textSize="19sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp" />
 
-        <TextView
-            android:id="@+id/tvBudgetAmount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Monthly Budget: ₹0.00"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="28dp"
-            android:layout_marginBottom="16dp" />
+            <TextView
+                android:id="@+id/tvBudgetExpense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Expense: ₹0.00"
+                android:textSize="15sp"
+                android:textColor="#EDE7F8"
+                android:layout_marginBottom="14dp" />
 
-        <TextView
-            android:id="@+id/tvBudgetExpense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Total Expense: ₹0.00"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#66FFFFFF"
+                android:layout_marginBottom="14dp" />
 
-        <TextView
-            android:id="@+id/tvBudgetRemaining"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Remaining Budget: ₹0.00"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="20dp" />
+            <TextView
+                android:id="@+id/tvBudgetRemaining"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remaining Budget: ₹0.00"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvBudgetMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="12dp"
+            android:padding="18dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_pp_dashboard_card"
             android:text="Your monthly budget will appear here."
-            android:textSize="15sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </ScrollView>

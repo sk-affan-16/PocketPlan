@@ -1,111 +1,283 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="@color/screen_background"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="20dp" android:paddingTop="44dp" android:paddingEnd="20dp" android:paddingBottom="20dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PocketPlan Dashboard"
-            android:textSize="26sp"
+            android:text="POCKETPLAN"
+            android:textColor="@color/primary"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:paddingBottom="20dp" />
+            android:letterSpacing="0.12"
+            android:layout_marginBottom="6dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current Balance"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvBalance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="₹0.00"
-            android:textSize="30sp"
+            android:text="Your finances"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:paddingBottom="24dp" />
+            android:fontFamily="sans"
+            android:layout_marginBottom="20dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_pp_dashboard_hero"
+            android:padding="24dp"
+            android:elevation="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TOTAL AVAILABLE BALANCE"
+                android:textColor="#E8DFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"/>
+
+            <TextView
+                android:id="@+id/tvBalance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="₹0.00"
+                android:textColor="#FFFFFF"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                android:fontFamily="sans"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your money, clearly managed."
+                android:textColor="#E8DFFF"
+                android:textSize="13sp"/>
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total Income"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvTotalIncome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="₹0.00"
-            android:textSize="22sp"
+            android:text="OVERVIEW"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:paddingBottom="16dp" />
+            android:letterSpacing="0.1"
+            android:layout_marginTop="26dp"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="7dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_pp_dashboard_income"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↑  INCOME"
+                    android:textColor="#16865B"
+                    android:textSize="12sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvTotalIncome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="₹0.00"
+                    android:textColor="#126B49"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:maxLines="1"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="14sp"
+                    android:autoSizeMaxTextSize="21sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Money received"
+                    android:textColor="#43866B"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="7dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_pp_dashboard_expense"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↓  EXPENSE"
+                    android:textColor="#C64E5B"
+                    android:textSize="12sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvTotalExpense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="₹0.00"
+                    android:textColor="#B94350"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:maxLines="1"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="14sp"
+                    android:autoSizeMaxTextSize="21sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Money spent"
+                    android:textColor="#A96A70"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total Expenses"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvTotalExpense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="₹0.00"
-            android:textSize="22sp"
+            android:text="MONTHLY BUDGET"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:paddingBottom="16dp" />
+            android:letterSpacing="0.1"
+            android:layout_marginTop="26dp"
+            android:layout_marginBottom="12dp"/>
 
-        <TextView
-            android:id="@+id/tvMonthlyBudget"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Monthly Budget: ₹0.00"
-            android:textSize="18sp"
-            android:paddingBottom="8dp" />
+            android:orientation="vertical"
+            android:background="@drawable/bg_pp_dashboard_card"
+            android:padding="20dp"
+            android:elevation="2dp">
 
-        <TextView
-            android:id="@+id/tvRemainingBudget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Remaining Budget: ₹0.00"
-            android:textSize="18sp"
-            android:paddingBottom="20dp" />
+            <TextView
+                android:id="@+id/tvMonthlyBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Monthly Budget: ₹0.00"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="14dp"/>
+
+            <TextView
+                android:id="@+id/tvRemainingBudget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remaining Budget: ₹0.00"
+                android:textColor="@color/income"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvEmptyState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="No transactions this month. Add your first transaction!"
-            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
             android:gravity="center"
-            android:padding="16dp"
-            android:visibility="visible" />
+            android:background="@drawable/bg_pp_dashboard_card"
+            android:padding="18dp"
+            android:layout_marginTop="16dp"
+            android:visibility="visible"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="QUICK ACTIONS"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="26dp"
+            android:layout_marginBottom="12dp"/>
 
         <Button
             android:id="@+id/btnAddTransaction"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Transaction" />
+            android:layout_height="54dp"
+            android:text="＋  Add Transaction"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_pp_dashboard_button"
+            android:stateListAnimator="@null"
+            android:elevation="2dp"/>
 
         <Button
             android:id="@+id/btnTransactionHistory"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Transaction History" />
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:text="Transaction History"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="@color/primary"
+            android:backgroundTint="@color/primary_light"
+            android:stateListAnimator="@null"/>
 
         <Button
             android:id="@+id/btnOpenBudget"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Monthly Budget" />
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage Monthly Budget"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="@color/primary"
+            android:backgroundTint="@color/primary_light"
+            android:stateListAnimator="@null"/>
 
     </LinearLayout>
 </ScrollView>
