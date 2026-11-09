@@ -219,130 +219,134 @@ class TransactionHistoryFragment :
         )
     }
 
-    private fun displayTransactions(
-        transactions: List<Transaction>
-    ) {
+    private fun displayTransactions(transactions: List<Transaction>) {
         transactionListContainer.removeAllViews()
-
         if (transactions.isEmpty()) {
             tvEmptyTransactions.visibility = View.VISIBLE
             return
         }
-
         tvEmptyTransactions.visibility = View.GONE
-
-        transactions.forEach { transaction ->
-
-            val itemLayout = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(16, 16, 16, 16)
-            }
-
-            val typeText = TextView(requireContext()).apply {
-                text = transaction.type
-                textSize = 18f
-            }
-
-            val amountText = TextView(requireContext()).apply {
-                text = String.format(
-                    Locale.getDefault(),
-                    "Amount: %.2f",
-                    transaction.amount
-                )
-                textSize = 16f
-            }
-
-            val categoryText = TextView(requireContext()).apply {
-                text = "Category: ${transaction.category}"
-                textSize = 14f
-            }
-
-            val dateText = TextView(requireContext()).apply {
-                text = "Date: ${transaction.date}"
-                textSize = 14f
-            }
-
-            itemLayout.addView(typeText)
-            itemLayout.addView(amountText)
-            itemLayout.addView(categoryText)
-            itemLayout.addView(dateText)
-
-            transaction.description
-                ?.takeIf { it.isNotBlank() }
-                ?.let { description ->
-                    val descriptionText =
-                        TextView(requireContext()).apply {
-                            text = "Description: $description"
-                            textSize = 14f
-                        }
-
-                    itemLayout.addView(descriptionText)
-                }
-
-            val buttonLayout = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-            }
-
-            val editButton = Button(requireContext()).apply {
-                text = "Edit"
-                isAllCaps = false
-
-                setOnClickListener {
-                    val arguments = Bundle().apply {
-                        putLong("transactionId", transaction.id)
-                    }
-
-                    findNavController().navigate(
-                        R.id.addTransactionFragment,
-                        arguments
-                    )
-                }
-            }
-
-            val deleteButton = Button(requireContext()).apply {
-                text = "Delete"
-                isAllCaps = false
-
-                setOnClickListener {
-                    showDeleteConfirmation(transaction)
-                }
-            }
-
-            buttonLayout.addView(
-                editButton,
-                LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
-            )
-
-            buttonLayout.addView(
-                deleteButton,
-                LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
-            )
-
-            itemLayout.addView(buttonLayout)
-            transactionListContainer.addView(itemLayout)
-
-            val divider = View(requireContext()).apply {
-                setBackgroundColor(0xFFDDDDDD.toInt())
-            }
-
-            transactionListContainer.addView(
-                divider,
-                LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    1
-                )
-            )
+        transactions.forEach {
+            transactionListContainer.addView(createTransactionCard(it))
         }
     }
 
+    private fun createTransactionCard(transaction: Transaction): View {
+        val income = transaction.type.equals("INCOME", true)
+        val accent = if (income) 0xFF25A875.toInt() else 0xFFE66C76.toInt()
+        val soft = if (income) 0xFFE5F6EE.toInt() else 0xFFFCEBED.toInt()
+
+        val card = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(15), dp(16), dp(14))
+            background = roundedBackground(0xFFFFFFFF.toInt(), 20)
+            elevation = dp(2).toFloat()
+        }
+        card.layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+            bottomMargin = dp(12)
+        }
+
+        val header = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+        val badge = TextView(requireContext()).apply {
+            text = if (income) "INCOME" else "EXPENSE"
+            textSize = 10f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(accent)
+            setPadding(dp(10), dp(6), dp(10), dp(6))
+            background = roundedBackground(soft, 30)
+        }
+        val amount = TextView(requireContext()).apply {
+            text = (if (income) "+" else "\u2212") + "\u20B9" + String.format(Locale.getDefault(), "%.2f", transaction.amount)
+            textSize = 20f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(accent)
+        }
+        header.addView(badge, LinearLayout.LayoutParams(0, -2, 1f))
+        header.addView(amount)
+        card.addView(header)
+
+        val category = TextView(requireContext()).apply {
+            text = transaction.category
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(0xFF242044.toInt())
+            setPadding(0, dp(12), 0, dp(3))
+        }
+        card.addView(category)
+
+        val date = TextView(requireContext()).apply {
+            text = transaction.date
+            textSize = 12f
+            setTextColor(0xFF777487.toInt())
+        }
+        card.addView(date)
+
+        transaction.description?.takeIf { it.isNotBlank() }?.let {
+            val note = TextView(requireContext()).apply {
+                text = it
+                textSize = 13f
+                setTextColor(0xFF777487.toInt())
+                setPadding(0, dp(7), 0, 0)
+            }
+            card.addView(note)
+        }
+
+        val divider = View(requireContext()).apply {
+            setBackgroundColor(0xFFEAE8F0.toInt())
+        }
+        card.addView(divider, LinearLayout.LayoutParams(-1, dp(1)).apply {
+            topMargin = dp(13)
+            bottomMargin = dp(10)
+        })
+
+        val actions = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        val edit = createActionButton("Edit", 0xFF7252B5.toInt(), 0xFFEDE7F8.toInt()) {
+            val args = Bundle().apply { putLong("transactionId", transaction.id) }
+            findNavController().navigate(R.id.addTransactionFragment, args)
+        }
+        val delete = createActionButton("Delete", 0xFFCD4A55.toInt(), 0xFFFCEBED.toInt()) {
+            showDeleteConfirmation(transaction)
+        }
+        actions.addView(edit, LinearLayout.LayoutParams(0, dp(40), 1f).apply {
+            marginEnd = dp(8)
+        })
+        actions.addView(delete, LinearLayout.LayoutParams(0, dp(40), 1f))
+        card.addView(actions)
+        return card
+    }
+
+    private fun createActionButton(
+        label: String, textColor: Int, fillColor: Int, action: () -> Unit
+    ): TextView {
+        return TextView(requireContext()).apply {
+            text = label
+            textSize = 13f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(textColor)
+            gravity = android.view.Gravity.CENTER
+            background = roundedBackground(fillColor, 12)
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun roundedBackground(
+        color: Int, radiusDp: Int
+    ): android.graphics.drawable.GradientDrawable {
+        return android.graphics.drawable.GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = dp(radiusDp).toFloat()
+        }
+    }
+
+    private fun dp(value: Int): Int =
+        (value * resources.displayMetrics.density).toInt()
     private fun showDeleteConfirmation(transaction: Transaction) {
 
         AlertDialog.Builder(requireContext())
@@ -381,3 +385,5 @@ class TransactionHistoryFragment :
             .show()
     }
 }
+
+

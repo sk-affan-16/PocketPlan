@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="20dp" android:paddingTop="44dp" android:paddingEnd="20dp" android:paddingBottom="20dp">
+        android:paddingStart="20dp" android:paddingTop="24dp" android:paddingEnd="20dp" android:paddingBottom="12dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,35 +29,71 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:fontFamily="sans"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/bg_pp_dashboard_hero"
-            android:padding="24dp"
+            android:padding="12dp"
             android:elevation="4dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+
+                android:layout_width="match_parent"
+
                 android:layout_height="wrap_content"
-                android:text="TOTAL AVAILABLE BALANCE"
-                android:textColor="#E8DFFF"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08"/>
+
+                android:orientation="horizontal"
+
+                android:gravity="center_vertical">
+
+
+                <TextView
+
+                    android:layout_width="0dp"
+
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="1"
+
+                    android:text="TOTAL AVAILABLE BALANCE"
+
+                    android:textColor="#E8DFFF"
+
+                    android:textSize="12sp"
+
+                    android:textStyle="bold"
+
+                    android:letterSpacing="0.08"/>
+
+
+                <ImageView
+
+                    android:layout_width="42dp"
+
+                    android:layout_height="42dp"
+
+                    android:src="@drawable/ic_wallet_white"
+
+                    android:contentDescription="Wallet"
+
+                    android:scaleType="fitCenter"/>
+
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvBalance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="₹0.00"
+                android:text="Γé╣0.00"
                 android:textColor="#FFFFFF"
                 android:textSize="34sp"
                 android:textStyle="bold"
                 android:fontFamily="sans"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="7dp"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
@@ -77,8 +113,8 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:layout_marginTop="26dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="8dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -92,12 +128,12 @@
                 android:layout_marginEnd="7dp"
                 android:orientation="vertical"
                 android:background="@drawable/bg_pp_dashboard_income"
-                android:padding="16dp">
+                android:padding="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="↑  INCOME"
+                    android:text="Γåæ  INCOME"
                     android:textColor="#16865B"
                     android:textSize="12sp"
                     android:textStyle="bold"/>
@@ -106,11 +142,11 @@
                     android:id="@+id/tvTotalIncome"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="₹0.00"
+                    android:text="Γé╣0.00"
                     android:textColor="#126B49"
                     android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:maxLines="1"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMinTextSize="14sp"
@@ -133,12 +169,12 @@
                 android:layout_marginStart="7dp"
                 android:orientation="vertical"
                 android:background="@drawable/bg_pp_dashboard_expense"
-                android:padding="16dp">
+                android:padding="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="↓  EXPENSE"
+                    android:text="Γåô  EXPENSE"
                     android:textColor="#C64E5B"
                     android:textSize="12sp"
                     android:textStyle="bold"/>
@@ -147,11 +183,11 @@
                     android:id="@+id/tvTotalExpense"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="₹0.00"
+                    android:text="Γé╣0.00"
                     android:textColor="#B94350"
                     android:textSize="21sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:maxLines="1"
                     android:autoSizeTextType="uniform"
                     android:autoSizeMinTextSize="14sp"
@@ -177,22 +213,22 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:layout_marginTop="26dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="8dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/bg_pp_dashboard_card"
-            android:padding="20dp"
+            android:padding="14dp"
             android:elevation="2dp">
 
             <TextView
                 android:id="@+id/tvMonthlyBudget"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Monthly Budget: ₹0.00"
+                android:text="Monthly Budget: Γé╣0.00"
                 android:textColor="@color/text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold"/>
@@ -201,14 +237,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/divider"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="14dp"/>
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="10dp"/>
 
             <TextView
                 android:id="@+id/tvRemainingBudget"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Remaining Budget: ₹0.00"
+                android:text="Remaining Budget: Γé╣0.00"
                 android:textColor="@color/income"
                 android:textSize="16sp"
                 android:textStyle="bold"/>
@@ -224,8 +260,8 @@
             android:textSize="14sp"
             android:gravity="center"
             android:background="@drawable/bg_pp_dashboard_card"
-            android:padding="18dp"
-            android:layout_marginTop="16dp"
+            android:padding="12dp"
+            android:layout_marginTop="7dp"
             android:visibility="visible"/>
 
         <TextView
@@ -236,14 +272,14 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:layout_marginTop="26dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btnAddTransaction"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:text="＋  Add Transaction"
+            android:layout_height="48dp"
+            android:text="∩╝ï  Add Transaction"
             android:textAllCaps="false"
             android:textStyle="bold"
             android:textSize="15sp"
@@ -255,8 +291,8 @@
         <Button
             android:id="@+id/btnTransactionHistory"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="7dp"
             android:text="Transaction History"
             android:textAllCaps="false"
             android:textStyle="bold"
@@ -268,9 +304,9 @@
         <Button
             android:id="@+id/btnOpenBudget"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="10dp"
             android:text="Manage Monthly Budget"
             android:textAllCaps="false"
             android:textStyle="bold"
@@ -281,3 +317,5 @@
 
     </LinearLayout>
 </ScrollView>
+
+
